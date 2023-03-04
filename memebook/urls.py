@@ -8,4 +8,4 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls')),
     path('api/general/<str:model_name>/', GeneralAPI.as_view(), name='general_api'),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+]

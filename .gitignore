@@ -22,6 +22,7 @@ __pycache__
 # Project Directories
 /media/
 /staticfiles/
+/static/
 /logs/
 /backups/
 /dev_data/

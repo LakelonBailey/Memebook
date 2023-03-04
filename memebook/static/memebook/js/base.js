@@ -306,5 +306,6 @@ const sendPut = async (url, data=false) => {
 
 (function($) {
 $(document).ready(function() {
+    window.alert('this');
 })
 })(jQuery)
