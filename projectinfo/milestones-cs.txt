@@ -1,0 +1,29 @@
+Milestones for Cooper Sarphie
+
+Milestone 1:
+ - Task: Create login page and endpoint
+ - Weight: 2 points
+Milestone 2:
+ - Task: Create signup page and endpoint
+ - Weight: 2 points
+Milestone 3:
+ - Task: Create "General" and "Friends" feeds that show top memes, with ability to filter on created date and likes.
+ - Weight: 5 points
+Milestone 4:
+ - Task: Add ability to like/comment on memes
+ - Weight: 5 points
+Milestone 5:
+ - Task: Add ability to adjust account settings, such as name, email, and privacy (public/private account)
+ - Weight: 2 points
+Milestone 6:
+ - Task: Add ability to search for other Users and view their profile
+ - Weight: 2 points
+Milestone 7:
+ - Task: Add ability to view profile (including follower/followers count and meme count)
+ - Weight: 10 points
+Milestone 8:
+ - Task: Add ability to add/remove friend
+ - Weight: 2 points
+Milestone 9:
+ - Task: Add ability to create custom memes
+ - Weight: 10 points

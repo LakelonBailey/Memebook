@@ -1,3 +1,5 @@
+Milestones for Lakelon Bailey
+
 Milestone 1:
  - Task: Set up Heroku server
  - Weight: 2 points
@@ -20,5 +22,16 @@ Milestone 7:
  - Task: Develop single-page application mimicking functionality
  - Weight: 2 points
 Milestone 8:
+ - Task: Develop database structure
+Milestone 8:
  - Task: Develop necessary API endpoints (API-first approach)
  - Weight: 10 points
+Milestone 9:
+ - Task: Develop media upload pathway for generated memes
+ - Weight: 4 points
+Milestone 10:
+ - Task: Integrate WebSocket API interaction
+ - WeightL 4 points
+Milestone 11:
+ - Task: Develop messaging service
+ - Weight: 8 points
