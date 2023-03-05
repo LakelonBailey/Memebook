@@ -2,9 +2,10 @@ from django.shortcuts import render
 from django.http import JsonResponse, Http404, HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth.decorators import login_required
 import json
 
-
+@login_required
 def index(request):
     context = {}
     return render(request, 'index.html', context)
