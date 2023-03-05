@@ -6,23 +6,21 @@
       <meta charset="UTF-8">
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Memebook</title>
 
       <!-- Imports -->
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.24/dist/sweetalert2.all.min.js"></script>
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
       <script src="https://kit.fontawesome.com/3e3789b549.js" crossorigin="anonymous"></script>
+      <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+      <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
       {% block head %}
       {% endblock %}
   </head>
   <body class="body home">
-    <header>
-    </header>
-    <main class="main">
-        <h1>Testing</h1>
-    </main>
+    {% block body %}
+    {% endblock %}
 
-      <script src="{% static 'memebook/js/base.js' %}"></script>
-
+    <script src="{% static 'memebook/js/base.js' %}"></script>
   </body>
 </html>

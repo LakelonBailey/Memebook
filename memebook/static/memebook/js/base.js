@@ -66,6 +66,21 @@ class GeneralAPIRequest {
     }
 }
 
+// Sweet Alerts
+const swalConfirm = Swal.mixin({
+  customClass: {
+    confirmButton: 'button is-success m-1',
+    denyButton: 'button is-danger m-1',
+
+  },
+  buttonsStyling: false
+})
+const swalNotif = Swal.mixin({
+  customClass: {
+      confirmButton: 'button is-info m-1'
+  }
+})
+
 
 const caps = word => {
   return word.charAt(0).toUpperCase() + word.slice(1)
@@ -194,6 +209,22 @@ const getCSRF = () => {
   return csrfToken
 }
 
+const errorToast = errorMessage => {
+  Toastify({
+    text: errorMessage || "We experienced an error, please try again.",
+    duration: 3000,
+    close: true,
+    gravity: "bottom",
+    position: "right",
+    style: {
+        background: "#ec363a",
+    },
+    onClick: function() {
+
+    }
+  }).showToast();
+}
+
 const sendPost = async (url, data, errorMessage=false) => {
   const response = await fetch(url, {
     method: 'POST',
@@ -304,8 +335,14 @@ const sendPut = async (url, data=false) => {
   return res;
 }
 
+
 (function($) {
 $(document).ready(function() {
-    window.alert('this');
-})
+
+  $(".navbar-burger").click(function() {
+    // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+    $(".navbar-burger").toggleClass("is-active");
+    $(".navbar-menu").toggleClass("is-active");
+  });
+});
 })(jQuery)
