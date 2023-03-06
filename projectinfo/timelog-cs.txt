@@ -1,0 +1,3 @@
+Date - Time - Description
+03/03/2023 - 3 hours - Created login page used base pages that we had. The login page can be found at https://ltb-memebook.herokuapp.com/
+03/04/2023 - 2 hours - Created sign up page that can be accessed from the login page, there is form validation, and you can create an account.
