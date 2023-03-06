@@ -1,0 +1,18 @@
+Lakelon Bailey - Challenge 4 - 03/05/2023
+
+Summary:
+ - I spent the first 6 hours of this project setting up the server, database, development environment, and gathering packages. Packages include CDN links to Bulma, JQuery, SweetAlert, Toastify, and Font Awesome. Along with this, I included some of my "general" JavaScript code in base.js and python code in utils.py and models.py. This code contains a collection of classes/functions that I use across all of my Django projects to accelerate/clean up development. None of these functions are specific to this project in any capacity, so this is comparable to downloading a library.
+ - I have included below a link to my milestones and my time log. The repository is public, so I viewed this as the most efficient way to display my persitent milestones/time log without just copy and pasting into this challenge. These links can also be viewed in the future as they update.
+
+Link to repository:
+ - https://github.com/LakelonBailey/Memebook
+
+Link to time log:
+ - https://github.com/LakelonBailey/Memebook/blob/main/projectinfo/timelog-lb.txt
+
+Link to milestones/rubric:
+ - https://github.com/LakelonBailey/Memebook/blob/main/projectinfo/milestones-lb.txt
+
+Compilable Progress:
+ - I have completed the first 5 milestones from the above mentioned milestones list. I made sure to complete this many milestones to start off so that Cooper was able to make progress on some of his milestones, many of which rely on some of my earlier ones being completed.
+ - Proof of my compilable progress can be found by visiting the public link for the website at https://ltb-memebook.herokuapp.com, proving that the application is successfully up and running in connection with a PostgreSQL database.
