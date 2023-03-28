@@ -2,8 +2,10 @@
 .*
 !/.gitignore
 
+
 # Ignore the production key file.
 /keys/
+memebook/.env
 
 # Compiled Python
 __pycache__
