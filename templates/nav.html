@@ -13,11 +13,11 @@
 
     <div id="navbarBasicExample" class="navbar-menu">
       <div class="navbar-start">
-        <a class="navbar-item">
-          Home
+        <a class="navbar-item section-load" data-section="create-meme">
+          Create Meme
         </a>
 
-        <a class="navbar-item">
+        <a class="navbar-item section-load" data-section="profile">
           Profile
         </a>
       </div>
@@ -25,12 +25,16 @@
       <div class="navbar-end">
         <div class="navbar-item">
           <div class="buttons">
-            <a class="button is-primary" href="/signup/">
-              <strong>Sign up</strong>
-            </a>
-            <a class="button is-light" href="/login/">
-              Log in
-            </a>
+            {% if logged_in %}
+              <a class="button is-light">Log Out</a>
+            {% else %}
+              <a class="button is-primary" href="/signup/">
+                <strong>Sign up</strong>
+              </a>
+              <a class="button is-light" href="/login/">
+                Log in
+              </a>
+            {% endif %}
           </div>
         </div>
       </div>

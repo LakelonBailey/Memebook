@@ -7,7 +7,7 @@ const tryLogin = async () => {
     const formData = getFormData('login-form');
     const response = await sendPost('/login/', formData);
     const result = response.data;
-    console.log(result);
+
     if (!result.success) {
         await swalNotif.fire({
             icon: 'error',
@@ -17,6 +17,13 @@ const tryLogin = async () => {
         return;
     }
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const next = urlParams.get('next');
+
+    if (next != undefined && next != null) {
+        window.location.replace(next);
+        return;
+    }
     window.location.replace('/');
 }
 

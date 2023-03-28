@@ -1,10 +1,17 @@
 # Django Imports
-from django.db.models import Model
-from django.db.models.fields.files import ImageFieldFile, FieldFile
+from django.db.models import Model, UUIDField, DateTimeField
+from django.db.models.fields.files import ImageFieldFile, FieldFile, FileField
+from django.contrib import admin
 from django.db.models import ForeignObjectRel
+import uuid
+
+# Package Imports
+import inspect, importlib
 
 
 class BaseClass(Model):
+    uuid = UUIDField(default=uuid.uuid4, unique=True, primary_key=True, editable=False)
+    created_at = DateTimeField(auto_now_add=True)
 
     class Meta:
         abstract = True
@@ -21,9 +28,21 @@ class BaseClass(Model):
         return fields
 
     def dict(self, *args, exclude=[], keep_related=False, model_types=[]):
+
+        def handle_sub_fields(field_list, sub_dict):
+            for item in [*field_list]:
+                if '__' in item:
+                    sub_model, *remainder = item.split('__')
+                    remainder = "__".join(remainder)
+                    sub_list = sub_dict.get(sub_model, [])
+                    sub_list.append(remainder)
+                    sub_dict[sub_model] = sub_list
+                    field_list.remove(item)
+
         model_dict = {}
-        fields = []
+        include = set(args)
         model_to_dict = self
+        exclude = set(exclude)
 
         # Initalize model types to ignore in nested models
         if not model_types:
@@ -31,50 +50,35 @@ class BaseClass(Model):
 
         # Assume these attributes need to be excluded
         auto_exclude = ['_state']
-
-        # Add auto exclusions to exclude
-        for exclusion in auto_exclude:
-            if exclusion not in exclude:
-                exclude.append(exclusion)
+        exclude = exclude.union(auto_exclude)
 
         # Handle sub exclusions, such as student__first_name
         sub_exclude = {}
-        for item in [*exclude]:
-            if '__' in item:
-                # Gather sub model and persist remainder
-                sub_model, *remainder = item.split('__')
-                remainder = "__".join(remainder)
+        sub_include = {}
+        handle_sub_fields(exclude, sub_exclude)
 
-                # Assign exclusion
-                sub_exclusions = sub_exclude.get(sub_model, [])
-                sub_exclusions.append(remainder)
-                sub_exclude[sub_model] = sub_exclusions
-                exclude.remove(item)
+        if include:
+            handle_sub_fields(include, sub_include)
+        else:
+            # Get normal model attributes
+            fields = []
+            default_fields = self.get_fields()
 
-        # Get normal model attributes
-        fields = []
-        default_fields = self.get_fields()
+            # Clean fields
+            for field in self.__dict__.keys():
+                clean_field = field.replace('_id', '')
+                if (clean_field in default_fields):
+                    fields.append(clean_field)
+                else:
+                    fields.append(field)
 
-        # Clean fields
-        for field in self.__dict__.keys():
-            clean_field = field.replace('_id', '')
-            if (clean_field in default_fields):
-                fields.append(clean_field)
-            else:
-                fields.append(field)
-
-        # Exclude fields
-        fields = [field for field in fields if field not in exclude]
-
-        # Get intersection of args and fields
-        if args:
-            fields = [field for field in args if field in fields]
-
-        if '_prefetched_objects_cache' not in fields:
-            fields.append('_prefetched_objects_cache')
+            # Exclude fields
+            include = set(fields)
+            include.add('_prefetched_objects_cache')
+            include = include.difference(exclude)
 
         # Gather attributes into dictionary
-        for field in fields:
+        for field in include:
             try:
                 value = getattr(model_to_dict, field, "Null Field")
                 if value == "Null Field":
@@ -93,6 +97,8 @@ class BaseClass(Model):
 
                         # Handle sub exclusions, such as stat_collections__hours_worked
                         queryset_exclude = sub_exclude.get(key, [])
+                        queryset_include = sub_include.get(key, [])
+
                         if queryset and not type(queryset[0]) in model_types:
                             for queried_model in queryset:
                                 additional_types = [*model_types, type(queried_model)]
@@ -101,6 +107,7 @@ class BaseClass(Model):
                                 if keep_related:
                                     model_dict[key].append(
                                         queried_model.dict(
+                                            *queryset_include,
                                             keep_related=True,
                                             model_types=additional_types,
                                             exclude=queryset_exclude
@@ -110,12 +117,16 @@ class BaseClass(Model):
                     continue
 
                 # Avoid image field files - need to expand this to check for all file fields
-                if isinstance(value, ImageFieldFile) or isinstance(value, FieldFile):
-                    continue
+                if isinstance(value, FieldFile):
+                    if hasattr(value, 'url'):
+                        value = value.url
+                    else:
+                        continue
 
                 # Handle relational fields
                 if issubclass(type(value), Model):
                     value = value.dict(
+                        *sub_include.get(field, []),
                         keep_related=True,
                         model_types=model_types,
 
@@ -127,3 +138,19 @@ class BaseClass(Model):
             except AttributeError:
                 continue
         return model_dict
+
+
+def register_models(file_name, exclude=[]):
+    for name, model in inspect.getmembers(importlib.import_module(file_name), inspect.isclass):
+        if model.__module__ == file_name and issubclass(type(model), Model) and model not in exclude:
+            admin.site.register(model)
+
+
+def paginate_query(query, params):
+    num_results = query.count()
+    page_size = int(params['size'])
+    num_pages = num_results / page_size
+    num_pages += bool(num_results%page_size)
+    first_item = (int(params['page']) -1) * page_size
+    last_item = first_item + page_size
+    return (query[first_item:last_item], num_pages)

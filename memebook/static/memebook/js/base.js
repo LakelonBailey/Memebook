@@ -4,66 +4,67 @@ function camelToUnderscore(str) {
 
 
 class GeneralAPIRequest {
-    constructor (modelName, inputOptions={}) {
-      if (!modelName) {
-            throw new Error("Model name not provided.");
-        }
+  constructor (modelName, inputOptions={}) {
+    if (!modelName) {
+          throw new Error("Model name not provided.");
+      }
 
-        this.defaults = {
-            values: [],
-            exclude: [],
-            count: false,
-            skip: 0,
-            take: 0,
-            listValues: false,
-            flattenValues: false,
-            customSerializer: false,
-            keepRelated: false,
-            prefetchRelated: [],
-            selectRelated: [],
-            filter: {},
-            annotations: {},
-            aggregations: {},
-        }
+      this.defaults = {
+          values: [],
+          exclude: [],
+          count: false,
+          skip: 0,
+          take: 0,
+          listValues: false,
+          flattenValues: false,
+          customSerializer: false,
+          keepRelated: false,
+          prefetchRelated: [],
+          selectRelated: [],
+          filter: {},
+          annotations: {},
+          aggregations: {},
+          filterProfile: false
+      }
 
-        this.options = {};
-        this.modelName = modelName;
-        this.update(inputOptions);
-    }
+      this.options = {};
+      this.modelName = modelName;
+      this.update(inputOptions);
+  }
 
-    update(updatedOptions) {
-        for (let [field, val] of Object.entries(updatedOptions)) {
-            this.options[field] = val;
-        }
-        for (let [field, val] of Object.entries(this.defaults)) {
-            if (this.options[field] == undefined) {
-                this.options[field] = val;
-            }
-        }
-    }
+  update(updatedOptions) {
+      for (let [field, val] of Object.entries(updatedOptions)) {
+          this.options[field] = val;
+      }
+      for (let [field, val] of Object.entries(this.defaults)) {
+          if (this.options[field] == undefined) {
+              this.options[field] = val;
+          }
+      }
+  }
 
-    getParams() {
-        let searchParams = {}
-        Object.entries(this.options).forEach(([field, val]) => {
-            if (Array.isArray(val)) {
-                val = val.join(',');
-            }
-            else if (['filter', 'annotations', 'aggregations'].includes(field)) {
-                val = JSON.stringify(val);
-            }
-            searchParams[camelToUnderscore(field)] = val;
-        })
-        return new URLSearchParams(searchParams);
-    }
+  getParams() {
+      let searchParams = {}
+      Object.entries(this.options).forEach(([field, val]) => {
+          if (Array.isArray(val)) {
+              val = val.join(',');
+          }
+          else if (['filter', 'annotations', 'aggregations'].includes(field)) {
+              val = JSON.stringify(val);
+          }
+          searchParams[camelToUnderscore(field)] = val;
+      })
+      return new URLSearchParams(searchParams);
+  }
 
-    getUrl() {
-        const url = `/api/general/${this.modelName}/?${this.getParams().toString()}`
-        return url;
-    }
+  getUrl() {
+      const url = `/api/general/${this.modelName}/?${this.getParams().toString()}`
+      return url;
+  }
 
-    async send() {
-        return await sendGet(this.getUrl());
-    }
+  async send() {
+      return await sendGet(this.getUrl());
+  }
 }
 
 // Sweet Alerts
@@ -193,13 +194,6 @@ const clearForm = (formId) => {
 const isEmail = email => {
   return email.toLowerCase().match(
       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-  )
-}
-
-
-const isPhone = phone => {
-  return phone.match(
-      /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im
   )
 }
 

@@ -63,6 +63,7 @@ class GeneralAPI(View):
         # Pagination parameters
         self.skip = int(self.params.pop('skip', 0))
         self.take = int(self.params.pop('take', 0))
+        self.filter_profile = self.convert(self.params.pop('filter_profile', False))
 
         # Serialization parameters
         self.keep_related = self.convert(self.params.pop('keep_related', False))
@@ -89,6 +90,8 @@ class GeneralAPI(View):
                 self.values.append(value)
 
         self.filter = json.loads(self.params.pop('filter', "{}"))
+        if self.filter_profile and ('profile' in self.model_fields) and request.user:
+            self.filter['profile__user_id'] = request.user.id
 
     # Use custom serializer
     def custom_serialize(self, obj):
@@ -154,14 +157,6 @@ class GeneralAPI(View):
         self.parse_params(request)
         self.generate_query()
 
-        # Store query info
-        response_data['query'] = {
-            'filter': self.filter,
-            'values': self.values,
-            'keep_related': self.keep_related,
-            'exclude': self.exclude
-        }
-
         # Return count if specified
         if self.count:
             response_data['count'] = data.count()
@@ -180,7 +175,6 @@ class GeneralAPI(View):
         else:
             if self.distinct is not None:
                 self.query = self.query.distinct(*self.distinct)
-            print(self.list_values)
             if self.list_values:
                 data = self.limit(self.query.values_list(
                     *self.values,
