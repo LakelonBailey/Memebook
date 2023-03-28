@@ -1,0 +1,17 @@
+Cooper Sarphie- Challenge 4 - 03/05/2023
+
+Summary:
+ -Spent 3 hours creating login page and endpoint and 2 more to create the sign up page. I used a lot of the packages that Lake found for us and he helped me a little with setting up the page on the server.
+ -Below is a link to the repository and my milestones and timesheet file.
+
+Link to repository:
+ - https://github.com/LakelonBailey/Memebook
+
+Link to time log:
+ - https://github.com/LakelonBailey/Memebook/blob/main/projectinfo/timelog-cs.txt
+
+Link to milestones/rubric:
+ - https://github.com/LakelonBailey/Memebook/blob/main/projectinfo/milestones-cs.txt
+
+Compilable Progress:
+https://ltb-memebook.herokuapp.com/
