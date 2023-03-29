@@ -1,0 +1,47 @@
+section.tab {
+    display: none;
+}
+section.tab.active {
+    display: block;
+}
+.default-template-cont {
+    overflow-x: scroll;
+}
+.default-template-img-cont {
+    display: flex;
+    flex-wrap: nowrap;
+    width: max-content;
+}
+.default-template-img-cont img {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+}
+.default-template-img-cont a {
+    display: block;
+    width: 150px;
+    height: 150px;
+    margin-right: 10px;
+    overflow: hidden;
+}
+.sec-title {
+    padding: 20px;
+    border-bottom: 2px solid black;
+    margin: 0;
+}
+.default-template-select:hover {
+    border: 2px solid black;
+    box-shadow: 0 0 15px rgba(0, 0, 0, .75);
+}
+.default-template-select.selected {
+    border: 2px solid black;
+    box-shadow: 0 0 15px rgba(0, 0, 0, .75);
+}
+.create-meme-preview {
+    display: flex;
+    flex-direction: row;
+}
+.create-meme-preview > div{
+    flex: 1;
+    padding: 12px;
+}
