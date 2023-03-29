@@ -22,9 +22,10 @@ const randomSRC = link => {
 }
 
 const createCanvas = async (topText, bottomText, imageLink) => {
+    imageLink = randomSRC(imageLink);
     // create a new HTML image element
     const image = new Image();
-    // image.crossOrigin = 'anonymous';
+    image.crossOrigin = 'anonymous';
 
     // create a canvas element
     const canvas = document.createElement('canvas');
@@ -55,8 +56,6 @@ const createCanvas = async (topText, bottomText, imageLink) => {
     const imgElementHeight = imgElement.offsetHeight;
     document.body.removeChild(imgElement);
 
-    // Draw the image onto the canvas
-    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
     // Set styling
     const fontSize = Math.floor(imgElementHeight / 10); // set font size relative to image height
@@ -74,6 +73,8 @@ const createCanvas = async (topText, bottomText, imageLink) => {
     ctx.lineWidth = 5;
     ctx.strokeStyle = 'black';
 
+    // Draw the image onto the canvas
+    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
     topText = topText ? topText : 'Top Text';
     bottomText = bottomText ? bottomText : 'Bottom Text';
