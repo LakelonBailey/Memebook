@@ -150,6 +150,5 @@ LOGIN_URL = '/login/'
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-if not LOCAL:
-    django_heroku.settings(locals())
+django_heroku.settings(locals())
 

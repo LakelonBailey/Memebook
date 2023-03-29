@@ -1,5 +1,4 @@
 {% load static %}
-{% csrf_token %}
 <!DOCTYPE html>
 <html lang="en" class="has-background-white">
   <head>
@@ -20,6 +19,7 @@
       {% endblock %}
   </head>
   <body class="body home">
+    {% csrf_token %}
     {% block body %}
     {% endblock %}
 
