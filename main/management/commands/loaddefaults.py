@@ -10,6 +10,7 @@ import os
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
+        DefaultTemplate.objects.all().delete()
         default_templates_dir = os.path.join(settings.BASE_DIR, 'default_templates')
 
         for file_name in os.listdir(default_templates_dir):

@@ -17,9 +17,14 @@ const loadCreateMeme = () => {
     loadDefaultMemes();
 }
 
+const randomSRC = link => {
+    return `${link}?rand=${Math.floor(Math.random() * 100000)}`
+}
+
 const createCanvas = async (topText, bottomText, imageLink) => {
     // create a new HTML image element
     const image = new Image();
+    image.crossOrigin = 'anonymous';
 
     // create a canvas element
     const canvas = document.createElement('canvas');
@@ -41,12 +46,12 @@ const createCanvas = async (topText, bottomText, imageLink) => {
 
     // calculate the size of the image element on the screen
     const imgElement = document.createElement('img');
+    imgElement.crossOrigin = 'anonymous';
     imgElement.src = imageLink;
     imgElement.style.position = 'absolute';
     imgElement.style.top = '-9999px';
     imgElement.style.left = '-9999px';
     document.body.appendChild(imgElement);
-    const imgElementWidth = imgElement.offsetWidth;
     const imgElementHeight = imgElement.offsetHeight;
     document.body.removeChild(imgElement);
 
@@ -92,6 +97,7 @@ const showCanvas = canvas => {
 
     // Create a new image element with the meme image
     const memeImage = new Image();
+    memeImage.crossOrigin = 'anonymous';
     memeImage.src = dataURL;
 
 
