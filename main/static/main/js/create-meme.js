@@ -24,7 +24,7 @@ const randomSRC = link => {
 const createCanvas = async (topText, bottomText, imageLink) => {
     // create a new HTML image element
     const image = new Image();
-    image.crossOrigin = 'anonymous';
+    // image.crossOrigin = 'anonymous';
 
     // create a canvas element
     const canvas = document.createElement('canvas');
