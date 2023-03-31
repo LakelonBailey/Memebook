@@ -1,22 +1,20 @@
 $(document).ready(function() {
-    window.LOAD_SECTION = function(section, data={}) {
+    window.LOAD_SECTION = async function(section, data={}) {
         if (section != window.CURRENT_SECTION) {
             // Remove the active classes from the current step.
             $('section.tab.active').removeClass('active');
             $(`.section-load`).removeClass('active');
 
-            // Add active classes to the newly current step.
-            $(`section.tab[data-section="${section}"]`).addClass('active');
-            $('title').text(`${$(`section.tab[data-section="${section}"] h2.sec-title`).text()} | Memebook`)
-            $(`.menu-list a[data-section="${section}"]`).addClass('active');
-
             // Scroll to the top.
             $('#sections').scrollTop(0);
 
             window.CURRENT_SECTION = section;
+            $(`section.tab[data-section="loader-view"]`).addClass('active');
+            await window.LOAD_SECTION_DATA(data);
+            $(`section.tab[data-section="loader-view"]`).removeClass('active');
+            $(`section.tab[data-section="${section}"]`).addClass('active');
             localStorage.setItem('section', window.CURRENT_SECTION);
 
-            window.LOAD_SECTION_DATA(data);
         }
 
     }
@@ -24,6 +22,17 @@ $(document).ready(function() {
         const section = window.CURRENT_SECTION;
         if (section == 'create-meme') {
             await loadCreateMeme();
+        }
+        else if (section == 'profile') {
+            await loadProfile();
+        }
+        else if (section == 'view-meme') {
+            const memeUUID = data.meme_uuid;
+            if (memeUUID == undefined) {
+                window.LOAD_SECTION('profile');
+                return;
+            }
+            await loadViewMeme(memeUUID);
         }
 
         localStorage.setItem(
@@ -57,8 +66,10 @@ $(document).ready(function() {
         window.LOAD_SECTION(window.FIRST_PAGE);
         return;
     }
-
-    let section = localStorage.getItem('section') || 'create-meme';
+    const mainSection = 'profile';
+    let section = localStorage.getItem('section') || mainSection;
+    const hiddenSections = ['loader-view'];
+    section = hiddenSections.includes(section) ? mainSection : section;
     const sectionData = JSON.parse(localStorage.getItem('sectionData') || "{}");
     window.LOAD_SECTION(section, sectionData);
 })

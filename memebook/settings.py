@@ -14,7 +14,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = env('SECRET_KEY')
 
 # Turn off LOCAL and DEBUG before pushing to production
-LOCAL = False
+LOCAL = True
 DEBUG = True
 
 ALLOWED_HOSTS = ['https://ltb-memebook.herokuapp.com', 'localhost:8000']
@@ -133,14 +133,12 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
+# International Settings
 LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
+USE_L10N = True
 USE_TZ = True
+TIME_ZONE = 'America/New_York'
 
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'

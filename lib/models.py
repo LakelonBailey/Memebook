@@ -4,6 +4,7 @@ from django.db.models.fields.files import ImageFieldFile, FieldFile, FileField
 from django.contrib import admin
 from django.db.models import ForeignObjectRel
 import uuid
+from django.utils import timezone
 
 # Package Imports
 import inspect, importlib
@@ -11,7 +12,7 @@ import inspect, importlib
 
 class BaseClass(Model):
     uuid = UUIDField(default=uuid.uuid4, unique=True, primary_key=True, editable=False)
-    created_at = DateTimeField(auto_now_add=True)
+    created_at = DateTimeField(default=timezone.localtime)
 
     class Meta:
         abstract = True

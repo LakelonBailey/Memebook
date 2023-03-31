@@ -10,7 +10,6 @@ def format_slugname(slug_name):
 
 # Create your models here.
 class DefaultTemplate(BaseClass):
-    uuid = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True, editable=False)
     description = models.CharField(max_length=100, null=True, blank=True)
     slug_name = models.CharField(max_length=80, null=True, blank=True)
     name = models.CharField(max_length=80, null=True, blank=True)

@@ -10,12 +10,14 @@
 <main class="main">
     <section class="section">
     <div class="container">
-        <div class="box">
+        <div>
         <div class="columns">
-            <div id="content" class="column is-four-fifths">
+            <div id="content" class="column">
                 <div id="sections">
                     {% include 'create-meme.html' %}
                     {% include 'profile.html' %}
+                    {% include 'view-meme.html' %}
+                    {% include 'loader-view.html' %}
                 </div>
             </div>
         </div>
@@ -27,5 +29,7 @@
 
 {% block additional_js %}
 <script src="{% static 'main/js/create-meme.js' %}"></script>
+<script src="{% static 'main/js/profile.js' %}"></script>
+<script src="{% static 'main/js/view-meme.js' %}"></script>
 <script src="{% static 'main/js/index.js' %}"></script>
 {% endblock %}

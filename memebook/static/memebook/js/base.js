@@ -121,7 +121,7 @@ const getFormData = formId => {
             )
             return true;
         }
-        formData[$(el).attr('name')] = $(el).val();
+        formData[$(el).attr('name')] = $(el).val().trim();
       }
     }
 
@@ -338,5 +338,6 @@ $(document).ready(function() {
     $(".navbar-burger").toggleClass("is-active");
     $(".navbar-menu").toggleClass("is-active");
   });
+  $('.tab').addClass('box');
 });
 })(jQuery)

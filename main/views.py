@@ -3,15 +3,21 @@ from django.http import JsonResponse, Http404, HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
+from django.core.files import File
+from django.views.decorators.http import require_POST, require_GET
 import json
 from memebook import settings
-from main.models import Meme
+from main.models import Meme, DefaultTemplate, Profile
+from lib.memes import create_meme
+from lib.decorators import attach_profile
+from django.db import models
 
 @login_required
-def index(request):
+@attach_profile
+def index(request, profile: Profile):
     context = {
-        'logged_in': request.user.is_authenticated
+        'logged_in': request.user.is_authenticated,
+        'profile': profile.dict()
     }
     return render(request, 'index.html', context)
 
@@ -61,18 +67,51 @@ def login(request):
 
 
 @require_POST
-def upload_meme(request):
-    uploaded_file = request.FILES['meme_file']
+@attach_profile
+def upload_meme(request, profile):
+    response_data = {}
+    data = json.loads(request.body)
+    top_text = data['top_text']
+    bottom_text = data['bottom_text']
+    template_slug = data['template_slug']
+    meme_image = create_meme(template_slug, top_text, bottom_text)
 
-    # create a new Meme object with the uploaded file
-    new_meme = Meme.objects.create(
-        image=uploaded_file
+    # Create a new Meme instance
+    new_meme = Meme(
+        top_text=top_text,
+        bottom_text=bottom_text,
+        template=DefaultTemplate.objects.filter(
+            slug_name=template_slug
+        ).first(),
+        profile=profile
     )
 
-    # save the Meme object to the database
+    # Save the meme image using the save() method of the FileField
+    new_meme.image.save(f"{new_meme.uuid}.jpeg", File(meme_image))
     new_meme.save()
 
-    # return a JSON response with the URL of the uploaded file
-    response_data = {'url': new_meme.image.url}
+    response_data['meme_uuid'] = new_meme.uuid
+    return JsonResponse(response_data)
+
+
+@require_GET
+@attach_profile
+def get_profile_data(request, profile: Profile):
+    response_data = {
+        'profile': profile.dict()
+    }
+    memes = (
+        profile.memes
+        .all()
+        .order_by('-created_at')
+        .annotate(
+            like_count=models.Count('likes'),
+            comment_count=models.Count('comments')
+        )
+    )
+    response_data['memes'] = [
+        meme.dict() for meme in memes
+    ]
+    response_data['friend_count'] = profile.friends.count()
 
     return JsonResponse(response_data)

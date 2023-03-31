@@ -1,0 +1,20 @@
+<section class="tab" data-section="view-meme">
+    <div class="section-content">
+        <div id="meme-cont" class="view-meme-cont">
+            <img src="" id="view-meme-img">
+        </div>
+        <form id="add-comment-form">
+            <input type="text" class="is-hidden" name="meme_uuid">
+            <div class="field">
+                <label class="label is-small">Add Comment</label>
+                <div class="control">
+                    <textarea class="textarea" rows="2" placeholder="Add Comment" maxlength="150" name="comment_text"></textarea>
+                </div>
+            </div>
+            <button class="button is-small is-success" style="width: 100px;">Submit</button>
+        </form>
+        <strong>Comments:</strong>
+        <div class="comment-list" id="comment-list">
+        </div>
+    </div>
+</section>

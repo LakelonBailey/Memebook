@@ -11,10 +11,14 @@
         </div>
         <br><br>
         <div class="create-meme-preview">
-            <div id="preview">
+            <div class="meme-container" id="preview">
+                <img src="" alt="Meme" class="meme-image" id="memeImage">
+                <div class="meme-text meme-text-top" id="memeTextTop"></div>
+                <div class="meme-text meme-text-bottom" id="memeTextBottom"></div>
             </div>
             <div>
                 <form id="create-meme-form">
+                    <input type="text" class="is-hidden" name="template_slug">
                     <div class="field">
                         <label class="label">Top Text</label>
                         <div class="control">
@@ -27,6 +31,7 @@
                             <input type="text" class="input" name="bottom_text" value="Bottom Text" placeholder="Bottom Text">
                         </div>
                     </div>
+                    <button class="button" type="submit">Create Meme</button>
                 </form>
             </div>
         </div>

@@ -1,3 +1,7 @@
 Date - Time - Description
 03/03/2023 - 4 hours - Set up dev environment and created Django project. Adjusted settings.py as needed. Gathered js and css packages as well as base.js file that I use on all website projects. Gathered python library functions that I use on all Django projects.
 03/04/2023 - 2 hours - Hosted project publicly at https://ltb-memebook.herokuapp.com/ . Handled errors associated with static file collection.
+03/27/2023 - 2 hours - Set up AWS S3 and tested uploads from the backend through Django model FieldField() (tests were successful)
+03/28/2023 - 6 hours - Developed basic UI/UX and JavaScript functionality to create meme. Once meme preview is accepted by user, python adds text to the meme on the backend.
+03/28/2023 - 1 hours - Met with Cooper to explain my progress so far as well as explain high-level basics of a functioning Django web application and some of the helper functions/classes I implemented from previous projects.
+03/29/2023 - 4 hours - Developed basic skeleton of other pages, such as profile, loading page, and page to view one meme. Developed API access to Comments to allow users to comment on memes
