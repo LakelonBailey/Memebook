@@ -14,11 +14,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = env('SECRET_KEY')
 
 # Turn off LOCAL and DEBUG before pushing to production
-LOCAL = False
+LOCAL = True
 DEBUG = True
 
 ALLOWED_HOSTS = ['ltb-memebook.herokuapp.com', 'localhost:8000']
-CSRF_TRUSTED_ORIGINS = ["https://ltb-memebook.herokuapp.com", 'localhost:8000']
+CSRF_TRUSTED_ORIGINS = ["https://ltb-memebook.herokuapp.com"]
 
 # Application definition
 INSTALLED_APPS = [
