@@ -30,6 +30,7 @@ class Profile(BaseClass):
     first_name = models.CharField(max_length=15, null=True, blank=True)
     last_name = models.CharField(max_length=15, null=True, blank=True)
     friends = models.ManyToManyField('self', blank=True)
+    is_private = models.BooleanField(default=True)
 
     def __str__(self):
         return self.full_name()
@@ -45,6 +46,9 @@ class Meme(BaseClass):
     top_text = models.CharField(max_length=50, null=True)
     bottom_text = models.CharField(max_length=50, null=True)
 
+    def __str__(self):
+        return f"{str(self.profile)} - {str(self.template)}"
+
 class Comment(BaseClass):
     profile = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True, blank=True, related_name='comments')
     meme = models.ForeignKey(Meme, on_delete=models.CASCADE, null=True, blank=True, related_name='comments')
@@ -53,3 +57,20 @@ class Comment(BaseClass):
 class Like(BaseClass):
     profile = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True, blank=True, related_name='likes')
     meme = models.ForeignKey(Meme, on_delete=models.CASCADE, null=True, blank=True, related_name='likes')
+
+    def __str__(self):
+        return f"{self.profile.full_name()} liked {str(self.meme)}"
+
+class FriendRequest(BaseClass):
+    requester = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True, blank=True, related_name='sent_requests')
+    requestee = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True, blank=True, related_name='recieved_requests')
+
+    def __str__(self):
+        return f"{self.requester.full_name()} requested {self.requestee.full_name()}"
+
+    def fullfill(self):
+        self.requestee.friends.add(self.requester)
+        self.requestee.save()
+        self.requester.friends.add(self.requestee)
+        self.requester.save()
+        self.delete()

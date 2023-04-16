@@ -4,7 +4,7 @@ from main.models import Profile
 def attach_profile(f):
         def wrap(request, *args, **kwargs):
                 user = request.user
-                profile, created = Profile.objects.get_or_create(user=user)
+                profile, created = Profile.objects.get_or_create(user_id=user.id)
                 if created:
                         profile.first_name = user.first_name
                         profile.last_name = user.last_name

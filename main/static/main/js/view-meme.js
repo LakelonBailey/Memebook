@@ -3,10 +3,12 @@ const loadViewMeme = async memeUUID => {
         filter: {
             uuid: memeUUID
         },
-        prefetchRelated: ['comments'],
         annotations: {
             like_count: {
                 Count: 'likes'
+            },
+            comment_count: {
+                Count: 'comments'
             }
         },
         keepRelated: true,
@@ -19,7 +21,10 @@ const loadViewMeme = async memeUUID => {
     $('#add-comment-form input[name="meme_uuid"]').val(meme.uuid);
     $('#view-meme-img').attr('src', meme.image);
 
-    loadComments(meme.comments);
+    const commentReponse = await sendGet(`/comments/?meme_id=${meme.uuid}`);
+    if (commentReponse.ok) {
+        loadComments(commentReponse.data.comments);
+    }
 }
 
 const loadComments = async (comments=null) => {
@@ -29,32 +34,57 @@ const loadComments = async (comments=null) => {
             return;
         }
 
-        const commentRequest = new GeneralAPIRequest("Comment", {
-            filter: {
-                meme_id: sectionData.meme_uuid
-            },
-            selectRelated: ['profile'],
-            exclude: ['meme'],
-            customSerializer: true,
-            keepRelated: true,
-        })
-        const response = await commentRequest.send();
-        if (!response.ok) {
+        const commentReponse = await sendGet(`/comments/?meme_id=${sectionData.meme_uuid}`);
+        if (!commentReponse.ok) {
             return;
         }
-        comments = response.data.data;
+        comments = commentReponse.data.comments;
     }
 
     const commentEls = comments.map(comment => {
+        const commentDate = new Date(comment.created_at);
+        const timeString = commentDate.toLocaleString().replace(/:\d{2}(?=\s)/, '');
         const profileName = `${comment.profile.first_name} ${comment.profile.last_name}`
         return `
         <div class="comment-list-item">
-            <p><a class="comment-profile">${profileName}</a></p>
-            <p class="comment-text">${comment.text}</p>
+            <div class="comment-info">
+                <p><a class="section-load" data-section="profile" data-profileuuid="${comment.profile.uuid}">${profileName}</a> <span style="font-size: small;">${timeString}</span></p>
+                <p class="comment-text ml-2">${comment.text}</p>
+            </div>
+            <div>
+                <div class="dropdown is-hoverable">
+                    <div class="dropdown-trigger">
+                        <button class="button" aria-haspopup="true" aria-controls="${comment.uuid}-dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                    <div class="dropdown-menu" id="${comment.uuid}-dropdown" role="menu">
+                        <div class="dropdown-content">
+                            <div class="dropdown-item">
+                                ${comment.belongs_to_user ? `<a class="delete-comment" data-commentuuid="${comment.uuid}">Delete</a><br/>`: ''}
+                                <a>Report</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         `
     });
     $('#comment-list').html(commentEls.join(''));
+}
+
+const deleteComment = async commentUUID => {
+    if (!commentUUID) {
+        return;
+    }
+
+    const response = await sendDelete('/comments/', {
+        comment_uuid: commentUUID
+    })
+    if (response.ok) {
+        loadComments();
+    }
 }
 
 $(document).ready(function(){
@@ -64,9 +94,15 @@ $(document).ready(function(){
         if (!formData.comment_text) {
             return;
         }
-        const response = await sendPost(`/comments/`, formData);
-        if (response.ok) {
-            loadComments();
-        }
+        $(this).find('button[type="submit"]').addClass('is-loading');
+        await sendPost(`/comments/`, formData);
+        await loadComments();
+        $(this).find('button[type="submit"]').removeClass('is-loading');
+        clearForm('#add-comment-form');
+    })
+
+    $(document).on('click', '.delete-comment', function() {
+        deleteComment($(this).data('commentuuid'));
+        $(this).closest('.comment-list-item').remove();
     })
 })

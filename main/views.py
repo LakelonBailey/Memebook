@@ -1,13 +1,13 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, Http404, HttpResponse
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.core.files import File
 from django.views.decorators.http import require_POST, require_GET
 import json
 from memebook import settings
-from main.models import Meme, DefaultTemplate, Profile
+from main.models import Meme, DefaultTemplate, Profile, FriendRequest
 from lib.memes import create_meme
 from lib.decorators import attach_profile
 from django.db import models
@@ -39,6 +39,7 @@ def signup(request):
         data['username'] = data['email']
         new_user = User.objects.create(**data)
         new_user.set_password(password)
+        new_user.save()
         auth_login(request, new_user)
 
         return JsonResponse(response_data)
@@ -64,6 +65,12 @@ def login(request):
             return JsonResponse({'success': True})
         else:
             return JsonResponse({'success': False, 'reason': 'Invalid login credentials.'})
+
+def logout(request):
+    if request.user.is_authenticated:
+        auth_logout(request)
+
+    return redirect('/login/')
 
 
 @require_POST
@@ -97,8 +104,34 @@ def upload_meme(request, profile):
 @require_GET
 @attach_profile
 def get_profile_data(request, profile: Profile):
+    initial_profile = profile
+    query_dict = request.GET.dict()
+    profile.is_current_user = True
+    if 'profile_uuid' in query_dict:
+        profile = Profile.objects.filter(
+            uuid=query_dict['profile_uuid']
+        ).first()
+        if profile is None:
+            return Http404()
+        profile.is_current_user = (profile == initial_profile)
+
+    if profile.is_current_user:
+        profile.is_friend = profile.friends.filter(
+            uuid=initial_profile.uuid
+        ).exists()
+
+        if not profile.is_friend:
+            profile.requested_user_friendship = profile.sent_requests.filter(
+                requestee=initial_profile
+            ).exists()
+
+            profile.user_requested_friendship = profile.recieved_requests.filter(
+                requester=initial_profile
+            ).exists()
+
     response_data = {
-        'profile': profile.dict()
+        'profile': profile.dict(),
+        'memes': []
     }
     memes = (
         profile.memes
@@ -106,12 +139,16 @@ def get_profile_data(request, profile: Profile):
         .order_by('-created_at')
         .annotate(
             like_count=models.Count('likes'),
-            comment_count=models.Count('comments')
+            comment_count=models.Count('comments'),
+            liked_by_user=models.Case(
+                models.When(likes__profile=profile, then=True),
+                default=False,
+                output_field=models.BooleanField()
+            )
         )
     )
-    response_data['memes'] = [
-        meme.dict() for meme in memes
-    ]
+    response_data['memes'] = [meme.dict() for meme in memes]
+
     response_data['friend_count'] = profile.friends.count()
 
     return JsonResponse(response_data)

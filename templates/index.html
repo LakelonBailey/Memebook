@@ -17,6 +17,7 @@
                     {% include 'create-meme.html' %}
                     {% include 'profile.html' %}
                     {% include 'view-meme.html' %}
+                    {% include 'feed.html' %}
                     {% include 'loader-view.html' %}
                 </div>
             </div>
@@ -30,6 +31,7 @@
 {% block additional_js %}
 <script src="{% static 'main/js/create-meme.js' %}"></script>
 <script src="{% static 'main/js/profile.js' %}"></script>
+<script src="{% static 'main/js/feed.js' %}"></script>
 <script src="{% static 'main/js/view-meme.js' %}"></script>
 <script src="{% static 'main/js/index.js' %}"></script>
 {% endblock %}

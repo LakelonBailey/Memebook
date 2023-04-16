@@ -17,6 +17,7 @@ const tryLogin = async () => {
         return;
     }
 
+    localStorage.setItem('section', 'feed');
     const urlParams = new URLSearchParams(window.location.search);
     const next = urlParams.get('next');
 
@@ -27,11 +28,9 @@ const tryLogin = async () => {
     window.location.replace('/');
 }
 
-(function($) {
 $(document).ready(function() {
     $('#login-form').on('submit', function(event) {
         event.preventDefault();
         tryLogin();
     })
 });
-})(jQuery)

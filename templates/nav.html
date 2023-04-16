@@ -1,6 +1,6 @@
 <nav class="navbar" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
-      <a class="navbar-item" href="https://bulma.io">
+      <a class="navbar-item section-load" data-section="feed">
         <h1 class="title is-size-6">Memebook</h1>
       </a>
 
@@ -13,6 +13,9 @@
 
     <div id="navbarBasicExample" class="navbar-menu">
       <div class="navbar-start">
+        <a class="navbar-item section-load" data-section="feed">
+          Feed
+        </a>
         <a class="navbar-item section-load" data-section="create-meme">
           Create Meme
         </a>
@@ -26,7 +29,7 @@
         <div class="navbar-item">
           <div class="buttons">
             {% if logged_in %}
-              <a class="button is-light">Log Out</a>
+              <a class="button is-light" href="/logout/">Log Out</a>
             {% else %}
               <a class="button is-primary" href="/signup/">
                 <strong>Sign up</strong>

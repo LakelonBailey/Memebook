@@ -34,7 +34,6 @@ const trySignup = async () => {
     delete formData.confirm_password;
     const response = await sendPost('/signup/', formData);
     const result = response.data;
-    console.log(result);
     if (!result.success) {
         await swalNotif.fire({
             icon: 'error',
