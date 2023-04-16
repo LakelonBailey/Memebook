@@ -17,7 +17,7 @@ SECRET_KEY = env('SECRET_KEY')
 LOCAL = False
 DEBUG = True
 
-ALLOWED_HOSTS = ['https://ltb-memebook.herokuapp.com', 'localhost:8000']
+ALLOWED_HOSTS = ['ltb-memebook.herokuapp.com', 'localhost:8000']
 
 # Application definition
 INSTALLED_APPS = [
