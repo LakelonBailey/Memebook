@@ -15,7 +15,7 @@ SECRET_KEY = env('SECRET_KEY')
 
 # Turn off LOCAL and DEBUG before pushing to production
 LOCAL = False
-DEBUG = LOCAL
+DEBUG = True
 
 ALLOWED_HOSTS = ['https://ltb-memebook.herokuapp.com', 'localhost:8000']
 
