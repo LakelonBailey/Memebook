@@ -18,6 +18,7 @@ LOCAL = False
 DEBUG = True
 
 ALLOWED_HOSTS = ['ltb-memebook.herokuapp.com', 'localhost:8000']
+CSRF_TRUSTED_ORIGINS = ["https://ltb-memebook.herokuapp.com", 'localhost:8000']
 
 # Application definition
 INSTALLED_APPS = [
