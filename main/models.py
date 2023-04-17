@@ -52,7 +52,7 @@ class Meme(BaseClass):
 class Comment(BaseClass):
     profile = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True, blank=True, related_name='comments')
     meme = models.ForeignKey(Meme, on_delete=models.CASCADE, null=True, blank=True, related_name='comments')
-    text = models.CharField(max_length=100, null=True, blank=True)
+    text = models.CharField(max_length=300, null=True, blank=True)
 
 class Like(BaseClass):
     profile = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True, blank=True, related_name='likes')

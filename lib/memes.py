@@ -3,8 +3,10 @@ import textwrap
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 from memebook.settings import BASE_DIR
+from main.models import Meme, DefaultTemplate
+from django.core.files import File
 
-def create_meme(default_slug, top_text, bottom_text, output_path='output.jpeg'):
+def create_meme_image(default_slug, top_text, bottom_text):
     # Load the meme
     meme = Image.open(f"default_templates/{default_slug}.jpeg")
     draw = ImageDraw.Draw(meme)
@@ -57,3 +59,26 @@ def create_meme(default_slug, top_text, bottom_text, output_path='output.jpeg'):
     output_meme.seek(0)
 
     return output_meme
+
+
+def create_meme(profile, meme_data):
+    top_text = meme_data['top_text']
+    bottom_text = meme_data['bottom_text']
+    template_slug = meme_data['template_slug']
+    meme_image = create_meme_image(template_slug, top_text, bottom_text)
+
+    # Create a new Meme instance
+    new_meme = Meme(
+        top_text=top_text,
+        bottom_text=bottom_text,
+        template=DefaultTemplate.objects.filter(
+            slug_name=template_slug
+        ).first(),
+        profile=profile
+    )
+
+    # Save the meme image using the save() method of the FileField
+    new_meme.image.save(f"{new_meme.uuid}.jpeg", File(meme_image))
+    new_meme.save()
+
+    return new_meme

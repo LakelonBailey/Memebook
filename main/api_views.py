@@ -6,6 +6,7 @@ from django.utils.decorators import method_decorator
 from lib.decorators import attach_profile
 from django.db import models
 from pprint import pprint
+import math
 
 
 class Comments(View):
@@ -85,15 +86,38 @@ class Memes(View):
             'memes': []
         }
 
+        query_dict = request.GET.dict()
+        page = int(query_dict.get('page', 1))
+        size = int(query_dict.get('size', 25))
+
+        filters = {}
+
+        if 'profile_uuid' in query_dict:
+            filters['profile_id'] = query_dict['profile_uuid']
+        else:
+            filters['profile__isnull'] = False
+            filters['profile__is_private'] = False
+
         memes = (
             Meme.objects
             .filter(
-                profile__isnull=False
+                **filters
             )
             .prefetch_related('likes', 'comments')
             .select_related('profile')
             .distinct()
         )
+
+        total_results = memes.count()
+
+        # Calculate number of pages
+        last_page = math.ceil(total_results / size)
+        response_data['last_page'] = last_page
+
+        # Calculate result range
+        start = (page - 1) * size
+        stop = start + size
+        memes = memes[start:stop]
 
         for meme in memes:
             meme.like_count = meme.likes.count()
@@ -111,11 +135,5 @@ class Memes(View):
                 'image',
                 keep_related=True
             ))
-
-        response_data['memes'] = sorted(
-            response_data['memes'],
-            reverse=True,
-            key=lambda meme: meme['like_count']
-        )
 
         return JsonResponse(response_data)

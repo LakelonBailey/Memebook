@@ -21,7 +21,7 @@ const addLike = async likeEl => {
     likeEl.find('.like-count').text(likeCount.toString());
 }
 
-const listMemes = (el, memes) => {
+const listMemes = (el, memes, totalMemes) => {
     const memeEls = memes.map(meme => {
         return `
         <div class="meme-list-item">
@@ -40,12 +40,17 @@ const listMemes = (el, memes) => {
         </div>
         `
     });
-    el.html(memeEls.join(''));
+
+    el.append(memeEls.join(''));
 }
 
 $(document).ready(function() {
+
+    window.MEME_PAGINATION_SIZE = 25;
+    window.MEME_PAGINATION_PAGE = 1;
+
     window.LOAD_SECTION = async function(section, data={}) {
-        if (section != window.CURRENT_SECTION) {
+        if (section != window.CURRENT_SECTION || section == 'profile') {
             // Remove the active classes from the current step.
             $('section.tab.active').removeClass('active');
             $(`.section-load`).removeClass('active');
@@ -123,5 +128,21 @@ $(document).ready(function() {
 
     $(document).on('click', '.like-meme', function() {
         addLike($(this));
+    })
+
+    $('.view-more-button').on('click', async function() {
+        const button = $(this);
+        button.addClass('is-loading');
+        const section = button.data('section');
+        if (section == 'feed') {
+            await loadFeedMemes();
+        }
+        else if (section == 'profile') {
+            const profileUUID = button.data('profileuuid');
+            if (profileUUID) {
+                await loadProfileMemes(profileUUID);
+            }
+        }
+        button.removeClass('is-loading');
     })
 })
