@@ -10,7 +10,7 @@ import os
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        default_templates_dir = os.path.join(settings.BASE_DIR, 'default_templates')
+        default_templates_dir = os.path.join(settings.BASE_DIR, 'assets/images/default_templates')
 
         for file_name in os.listdir(default_templates_dir):
             file_path = os.path.join(default_templates_dir, file_name)
@@ -22,7 +22,7 @@ class Command(BaseCommand):
                 template_exists = DefaultTemplate.objects.filter(slug_name=slug_name).exists()
 
                 if not template_exists:
-                    with open(os.path.join('default_templates', file_name), 'rb') as f:
+                    with open(os.path.join('assets/images/default_templates', file_name), 'rb') as f:
                         default_template = DefaultTemplate(slug_name=slug_name)
                         django_file = File(f)
                         django_file.name = file_name
