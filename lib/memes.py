@@ -8,7 +8,7 @@ from django.core.files import File
 
 def create_meme_image(default_slug, top_text, bottom_text):
     # Load the meme
-    meme = Image.open(f"default_templates/{default_slug}.jpeg")
+    meme = Image.open(f"assets/images/default_templates/{default_slug}.jpeg")
     draw = ImageDraw.Draw(meme)
     meme_width, meme_height = meme.size
 
