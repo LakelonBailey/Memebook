@@ -44,12 +44,10 @@ class Command(BaseCommand):
 
         if options['delete_old']:
             print('Deleting previous profiles, memes, likes, comments, and default templates...')
-            return
             Profile.objects.all().delete()
             Meme.objects.all().delete()
             DefaultTemplate.objects.all().delete()
 
-        return
         print('Loading default templates...')
         call_command('loaddefaults')
 
