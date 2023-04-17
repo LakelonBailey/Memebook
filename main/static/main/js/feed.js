@@ -22,6 +22,7 @@ const loadFeed = async () => {
     window.MEME_PAGINATION_PAGE = 1;
     window.MEME_PAGINATION_SIZE = 25;
 
+    $('#feed-memes').html('');
     const response = await sendGet('/memes/');
 
     const memes = response.data.memes;
