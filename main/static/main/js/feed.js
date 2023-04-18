@@ -9,7 +9,7 @@ const loadFeedMemes = async (memes=null, lastPage) => {
     listMemes($('#feed-memes'), memes);
 
     const viewMoreButton = $('.tab[data-section="feed"] .view-more-button');
-    if (window.MEME_PAGINATION_PAGE == lastPage) {
+    if (window.MEME_PAGINATION_PAGE >= lastPage) {
         viewMoreButton.hide();
     }
     else {

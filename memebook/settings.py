@@ -77,17 +77,20 @@ WSGI_APPLICATION = 'memebook.wsgi.application'
 
 
 # Database Configuration
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': f"{BASE_DIR}/db.sqlite3",
+if LOCAL:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': f"{BASE_DIR}/db.sqlite3",
+        }
     }
-} if LOCAL else {
-    'default': dj_database_url.config(
-        conn_max_age=600,
-        ssl_require=True
-    )
-}
+else:
+    DATABASES = {
+        'default': dj_database_url.config(
+            conn_max_age=600,
+            ssl_require=True
+        )
+    }
 
 # Media File Configuration
 if LOCAL:
