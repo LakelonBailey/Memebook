@@ -4,6 +4,18 @@ section.tab {
 section.tab.active {
     display: block;
 }
+section.tab.box {
+  margin-top: 24px;
+}
+.navbar {
+  box-shadow: 0 0 2px rgba(0, 0, 0, .5);
+}
+
+.navbar-item.is-active {
+  background-color: rgba(211, 211, 211, 0.517) !important;
+  border-radius: 10px;
+  margin: 8px 0;
+}
 .default-template-cont {
     overflow-x: scroll;
 }
@@ -24,11 +36,11 @@ section.tab.active {
     margin-right: 10px;
     overflow: hidden;
 }
-.sec-title {
+/* .sec-title {
     padding: 20px;
     border-bottom: 2px solid black;
     margin: 0;
-}
+} */
 .default-template-select:hover {
     border: 2px solid black;
     box-shadow: 0 0 15px rgba(0, 0, 0, .75);
@@ -138,8 +150,31 @@ section.tab.active {
     border: 5px solid grey;
     border-radius: 10px;
 }
-section[data-section="loader-view"] {
+section[data-section="loader-view"], section[data-section="search"] {
     height: 80vh;
+}
+
+#search-results {
+  height: 90%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+.search-list-item {
+  height: 4vh;
+  padding: 8px;
+  border-top: 1px solid lightgray;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.search-list-item > div {
+  margin: 0 12px;
+}
+.search-list-item:last-child {
+  border-bottom: 1px solid lightgray;
+}
+.search-list-item:hover {
+  background-color: rgba(231, 231, 231, 0.377);
 }
 
 .comment-list-item {
@@ -155,6 +190,51 @@ section[data-section="loader-view"] {
 }
 .meme-info-icons p {
   margin: 0 8px;
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.profile-header-left {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 20px;
+  /* border-bottom: 2px solid black; */
+  margin: 0;
+}
+.profile-header-left h2 {
+  font-size: larger;
+  font-weight: bold;
+  margin: 0 24px 0 0;
+}
+.profile-info {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.profile-info-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 12px;
+}
+.profile-info-number {
+  font-size: large;
+  font-weight: bold;
+}
+.search-form {
+  display: flex;
+}
+.search-form .field {
+  flex: 9;
+}
+.search-form .button {
+  flex: 1;
 }
 
 

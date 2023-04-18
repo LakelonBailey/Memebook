@@ -32,7 +32,8 @@ const loadMemePreview = async () => {
     const memeTextBottom = document.getElementById('memeTextBottom');
     const scaleFactor = memeImage.clientWidth / memeImage.naturalWidth;
 
-    const fontSize = memeImage.naturalHeight * 0.1 * scaleFactor;
+    let fontSize = memeImage.naturalHeight * 0.1 * scaleFactor;
+    fontSize = fontSize < 6 ? 6 : fontSize;
     memeTextTop.style.fontSize = fontSize + 'px';
     memeTextBottom.style.fontSize = fontSize + 'px';
 
@@ -65,8 +66,11 @@ $(document).ready(function() {
         loadMemePreview();
     })
 
-    $('#create-meme-form').on('submit', function(event) {
+    $('#create-meme-form').on('submit', async function(event) {
         event.preventDefault();
-        uploadMeme();
+        const submitButton = $('#create-meme-form button[type="submit"]')
+        submitButton.addClass('is-loading');
+        await uploadMeme();
+        submitButton.removeClass('is-loading');
     })
 })
