@@ -45,7 +45,6 @@ const listMemes = (el, memes, totalMemes) => {
 }
 
 $(document).ready(function() {
-
     window.MEME_PAGINATION_SIZE = 25;
     window.MEME_PAGINATION_PAGE = 1;
 
@@ -60,6 +59,11 @@ $(document).ready(function() {
 
             window.CURRENT_SECTION = section;
             $(`section.tab[data-section="loader-view"]`).addClass('active');
+            $('.navbar-item').removeClass('is-active');
+            const navBarEl = $(`#navbar-main .navbar-item[data-section="${section}"]`);
+            if (section != 'profile' || (section == 'profile' && !data.profileuuid)) {
+                navBarEl.addClass('is-active');
+            }
             await window.LOAD_SECTION_DATA(data);
             $(`section.tab[data-section="loader-view"]`).removeClass('active');
             $(`section.tab[data-section="${section}"]`).addClass('active');
@@ -95,8 +99,13 @@ $(document).ready(function() {
     }
 
     // Handle section link click
-    $(document).on('click', 'a.section-load', function() {
-        const {section, ...data} = $(this).data();
+    $(document).on('click', '.section-load', function() {
+        const el = $(this);
+        const {section, ...data} = el.data();
+        if (el.hasClass('navbar-item')) {
+            $('a.navbar-item').removeClass('is-active');
+            $(`#navbar-main .navbar-item[data-section="${section}"]`).addClass('is-active');
+        }
         window.LOAD_SECTION(section || 'create-meme', data);
     })
 
@@ -138,11 +147,36 @@ $(document).ready(function() {
             await loadFeedMemes();
         }
         else if (section == 'profile') {
-            const profileUUID = button.data('profileuuid');
-            if (profileUUID) {
-                await loadProfileMemes(profileUUID);
-            }
+            await loadProfileMemes();
         }
         button.removeClass('is-loading');
+    })
+
+    $('.section-tab').on('click', async function() {
+        const tabEl = $(this);
+        const tabName = tabEl.data('tab');
+        const section = tabEl.closest('section.tab').data('section');
+        if (tabName == window.CURRENT_TAB) {
+            return;
+        }
+        window.CURRENT_TAB = tabName;
+
+        $(`#${section}-memes`).html('<div class="lds-roller"><div></div><div></div><div></div><div></div></div>')
+        $('.section-tab').closest('li').removeClass('is-active');
+        $(`.tab[data-section="${section}"] .view-more-button`).hide();
+        tabEl.closest('li').addClass('is-active');
+
+        const pageLoaders = {
+            'friends': loadFriendsFeed,
+            'popular': loadPopularFeed,
+            'profile-memes': loadStandardProfileMemes,
+            'liked': loadLikedMemes
+        }
+        const loader = pageLoaders[tabName];
+        if (loader) {
+            await loader();
+        }
+
+        window.CURRENT_TAB = tabName;
     })
 })

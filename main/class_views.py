@@ -89,11 +89,25 @@ class Memes(View):
         query_dict = request.GET.dict()
         page = int(query_dict.get('page', 1))
         size = int(query_dict.get('size', 25))
+        filter_friends = query_dict.get('filter_friends', 'False') == 'True'
+        filter_liked = query_dict.get('filter_liked', 'False') == 'True'
 
+        profile_uuid = query_dict.get('profile_uuid', None)
         filters = {}
 
-        if 'profile_uuid' in query_dict:
-            filters['profile_id'] = query_dict['profile_uuid']
+        if filter_friends:
+            filters['profile__in'] = models.Subquery(
+                profile.friends.values_list('uuid', flat=True)
+            )
+        elif profile_uuid:
+            if filter_liked:
+                filters['uuid__in'] = models.Subquery(
+                    Like.objects.filter(
+                        profile_id=profile_uuid
+                    ).values_list('meme__uuid', flat=True)
+                )
+            else:
+                filters['profile_id'] = query_dict['profile_uuid']
         else:
             filters['profile__isnull'] = False
             filters['profile__is_private'] = False

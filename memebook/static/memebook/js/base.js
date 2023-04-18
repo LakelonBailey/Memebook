@@ -91,6 +91,10 @@ const caps = word => {
 const getFormData = formId => {
   const formData = {};
   formId = formId.replace('#', '');
+  const conversions = {
+    'true': true,
+    'false': false
+  }
   $(`#${formId} :input`).each((index, el) => {
 
     if ($(el).is('input')) {
@@ -126,7 +130,11 @@ const getFormData = formId => {
     }
 
     if ($(el).is('select') || $(el).is('textarea')) {
-      formData[$(el).attr('name')] = $(el).val();
+      let val = $(el).val();
+      if (val in conversions) {
+        val = conversions[val];
+      }
+      formData[$(el).attr('name')] = val;
     }
 
   })
@@ -162,7 +170,7 @@ const fillForm = (formId, data) => {
         }
       }
       else if (!el.is('button')) {
-        el.val(data[el.attr('name')])
+        el.val(data[el.attr('name')].toString());
       }
     }
   })
@@ -300,6 +308,21 @@ const sendDelete = async (url, data=false) => {
   return res;
 }
 
+const savedToast = (milliseconds=3000) => {
+  Toastify({
+    text: "Saved!",
+    duration: milliseconds,
+    gravity: "bottom",
+    position: "right",
+    style: {
+        background: "#48c774",
+    },
+    onClick: function() {
+
+    }
+  }).showToast();
+}
+
 
 const sendPut = async (url, data=false) => {
   const params = {
@@ -338,6 +361,53 @@ $(document).ready(function() {
     $(".navbar-burger").toggleClass("is-active");
     $(".navbar-menu").toggleClass("is-active");
   });
+  $('.navbar-item').click(function() {
+    $('.navbar-menu').toggleClass('is-active');
+    $(".navbar-burger").toggleClass("is-active");
+  })
   $('.tab').addClass('box');
+
+  // Functions to open and close a modal
+  function openModal($el) {
+    $el.classList.add('is-active');
+  }
+
+  function closeModal($el) {
+    $el.classList.remove('is-active');
+  }
+
+  function closeAllModals() {
+    (document.querySelectorAll('.modal') || []).forEach(($modal) => {
+      closeModal($modal);
+    });
+  }
+
+  // Add a click event on buttons to open a specific modal
+  (document.querySelectorAll('.js-modal-trigger') || []).forEach(($trigger) => {
+    const modal = $trigger.dataset.target;
+    const $target = document.getElementById(modal);
+
+    $trigger.addEventListener('click', () => {
+      openModal($target);
+    });
+  });
+
+  // Add a click event on various child elements to close the parent modal
+  (document.querySelectorAll('.modal-background, .modal-close, .modal-card-head .delete, .modal-card-foot .button') || []).forEach(($close) => {
+    const $target = $close.closest('.modal');
+
+    $close.addEventListener('click', () => {
+      closeModal($target);
+    });
+  });
+
+  // Add a keyboard event to close all modals
+  document.addEventListener('keydown', (event) => {
+    const e = event || window.event;
+
+    if (e.keyCode === 27) { // Escape key
+      closeAllModals();
+    }
+  });
 });
 })(jQuery)

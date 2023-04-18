@@ -6,15 +6,22 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST, require_GET
 import json
 from memebook import settings
-from main.models import Meme, DefaultTemplate, Profile, FriendRequest
+from main.models import Meme, DefaultTemplate, Profile, FriendRequest, Like
 from lib.memes import create_meme
 from lib.decorators import attach_profile
 from django.db import models
+from django.db.models import Case, When, Value
+from functools import reduce
+from operator import or_
 import math
 
 @login_required
 @attach_profile
 def index(request, profile: Profile):
+    # FriendRequest.objects.get_or_create(
+    #     requester_id='27d1d996-c21a-4935-91dd-544aeaa3169e',
+    #     requestee=profile
+    # )
     context = {
         'logged_in': request.user.is_authenticated,
         'profile': profile.dict()
@@ -88,17 +95,17 @@ def upload_meme(request, profile):
 def get_profile_data(request, profile: Profile):
     initial_profile = profile
     query_dict = request.GET.dict()
-    size = int(query_dict.get('size', 25))
+
     profile.is_current_user = True
     if 'profile_uuid' in query_dict:
         profile = Profile.objects.filter(
             uuid=query_dict['profile_uuid']
-        ).first()
+        ).prefetch_related('memes').first()
         if profile is None:
             return Http404()
         profile.is_current_user = (profile == initial_profile)
 
-    if profile.is_current_user:
+    if not profile.is_current_user:
         profile.is_friend = profile.friends.filter(
             uuid=initial_profile.uuid
         ).exists()
@@ -108,14 +115,154 @@ def get_profile_data(request, profile: Profile):
                 requestee=initial_profile
             ).exists()
 
-            profile.user_requested_friendship = profile.recieved_requests.filter(
+            profile.user_requested_friendship = profile.received_requests.filter(
                 requester=initial_profile
             ).exists()
+
+    profile.friend_count = profile.friends.count()
+    profile.meme_count = profile.memes.count()
+    profile.like_count = Like.objects.filter(
+        meme__profile=profile
+    ).count()
 
     response_data = {
         'profile': profile.dict(),
     }
 
-    response_data['friend_count'] = profile.friends.count()
+    return JsonResponse(response_data)
+
+
+@require_POST
+@attach_profile
+def update_profile(request, profile: Profile):
+    for key, val in json.loads(request.body).items():
+        setattr(profile, key, val)
+    profile.save()
+    return HttpResponse()
+
+
+@require_POST
+@attach_profile
+def request_friend(request, profile: Profile):
+    data = json.loads(request.body)
+    requestee = Profile.objects.filter(
+        uuid=data.get('requestee_uuid', None)
+    ).first()
+    if requestee is None:
+        return Http404()
+
+    if not requestee.is_private:
+        profile.friends.add(requestee)
+    else:
+        FriendRequest.objects.create(
+            requester=profile,
+            requestee=requestee
+        )
+
+    return HttpResponse()
+
+
+@require_POST
+@attach_profile
+def cancel_friend_request(request, profile: Profile):
+    data = json.loads(request.body)
+    FriendRequest.objects.filter(
+        requestee_uuid=data['requestee_uuid'],
+        requester=profile
+    ).delete()
+
+    return HttpResponse()
+
+
+@require_POST
+@attach_profile
+def friend_request_action(request, profile: Profile):
+    data = json.loads(request.body)
+    friend_request = FriendRequest.objects.filter(
+        requestee=profile,
+        requester_id=data['requester_uuid']
+    ).first()
+
+    if friend_request is None:
+        return Http404()
+
+    action = data['action']
+    if action == 'accept':
+        friend_request.fullfill()
+    elif action == 'ignore':
+        friend_request.delete()
+
+    return HttpResponse()
+
+
+@require_POST
+@attach_profile
+def remove_friend(request, profile: Profile):
+    data = json.loads(request.body)
+    friend_uuid = data['friend_uuid']
+
+    friend = Profile.objects.filter(
+        uuid=friend_uuid
+    ).first()
+
+    if friend is None:
+        return Http404()
+
+    profile.friends.remove(friend)
+
+    return HttpResponse()
+
+
+@require_GET
+@attach_profile
+def profile_search(request, profile: Profile):
+    response_data = {}
+    query_dict = request.GET.dict()
+
+    search_input = query_dict.get('search_input', '')
+    search_fields = ['first_name', 'last_name', 'user__username']
+    search_filters = []
+    if search_input:
+        terms = [term.strip() for term in search_input.split(' ') if term]
+        queries = [models.Q(**{f'{field}__icontains': t}) for t in terms for field in search_fields]
+        search_filters.append(reduce(or_, queries))
+
+    profiles = (
+        Profile.objects
+        .filter(
+            *search_filters,
+        )
+        .exclude(
+            uuid=profile.uuid
+        )
+        .annotate(
+            is_friend=Case(
+                When(
+                    friends__uuid=profile.uuid,
+                    then=Value(True)
+                ),
+                default=Value(False)
+            ),
+            # user_requested_friendship=Case(When(received_requests__requester=profile, then=Value(True)), default=Value(False)),
+            # requested_user_friendship=Case(When(sent_requests__requestee=profile, then=Value(True)), default=Value(False))
+        )
+        .order_by('first_name', 'last_name')
+    )
+
+    profile_data = []
+    for searched_profile in profiles:
+
+        profile_data.append(searched_profile.dict(
+            'uuid',
+            'first_name',
+            'last_name',
+            'is_friend',
+            # 'requested_user_friendship',
+            # 'user_requested_friendship'
+        ))
+
+
+    response_data['profiles'] = profile_data
 
     return JsonResponse(response_data)
+
