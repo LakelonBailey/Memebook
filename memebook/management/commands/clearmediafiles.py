@@ -9,8 +9,7 @@ from memebook.settings import (
     AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY,
     AWS_STORAGE_BUCKET_NAME,
-    LOCAL,
-    MEDIA_ROOT
+    LOCAL
 )
 import os
 import shutil
@@ -20,12 +19,12 @@ class Command(BaseCommand):
 
     # Execute
     def handle(self, *args, **options):
-        if False:
+        if LOCAL:
             # Remove the local media folder and its contents
-            if os.path.exists(MEDIA_ROOT):
-                shutil.rmtree(MEDIA_ROOT)
+            if os.path.exists('mediafiles/'):
+                shutil.rmtree('mediafiles/')
 
-            os.makedirs(MEDIA_ROOT)
+            os.makedirs('mediafiles/')
 
         else:
             # Initialize a boto3 session with your AWS credentials
