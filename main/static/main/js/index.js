@@ -64,20 +64,16 @@ const cancelFriendRequest = async friendData => {
 
 const loadFriendshipStatusButton = async ({el, profile, profileUUID, reloadProfile} = {reloadProfile: true}) => {
     if (el == undefined) {
-        console.log('no el');
         return;
     }
     if (profileUUID == undefined && profile == undefined) {
-        console.log('no uuid or profile');
         return;
     }
     if (profileUUID && profile == undefined) {
         const response = await sendGet(`/friendship-status/${profileUUID}/`);
         if (!response.ok) {
-            console.log('bad response');
             return;
         }
-
         profile = response.data;
     }
 
@@ -98,7 +94,7 @@ const loadFriendshipStatusButton = async ({el, profile, profileUUID, reloadProfi
             <span class="icon">
             <i class="fa-solid fa-xmark"></i>
             </span>
-            <span>Cancel Friend Request</span>
+            <span>Cancel Request</span>
         </button>
         `;
     }

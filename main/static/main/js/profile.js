@@ -28,6 +28,8 @@ const loadProfile = async (profileUUID=null) => {
         $('#settings-modal-trigger').show();
     }
     else {
+        $('#settings-modal-trigger').hide();
+
         await loadFriendshipStatusButton({
             el: friendshipStatusEl,
             profile: profile,
@@ -49,9 +51,12 @@ const loadProfile = async (profileUUID=null) => {
 
     if (!(profile.is_current_user || profile.is_friend || !profile.is_private)) {
         $('#profile-memes').html('Friend this user to view their memes!');
+        window.PRIVATE_MEMES = true;
         viewMoreButton.hide();
         return;
     }
+
+    window.PRIVATE_MEMES = false;
 
     viewMoreButton.data('profileuuid', profile.uuid);
 
@@ -61,6 +66,10 @@ const loadProfile = async (profileUUID=null) => {
 
 
 const loadStandardProfileMemes = async () => {
+    if (window.PRIVATE_MEMES) {
+        $('#profile-memes').html('Friend this user to view their memes!');
+        return;
+    }
     window.MEME_PAGINATION_PAGE = 1;
     let url = `/memes/?size=${window.MEME_PAGINATION_SIZE}&page=${window.MEME_PAGINATION_PAGE}&profile_uuid=${window.PROFILE_UUID}`;
     const response = await sendGet(url);

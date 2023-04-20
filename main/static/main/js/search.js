@@ -6,11 +6,9 @@ const searchProfiles = async () => {
     let profileEls = [];
     for (let profile of profiles) {
         const friendStatusEl = await loadFriendshipStatusButton({
-            el: $('<div class="friendship-status-buttons"></div>'),
+            el: $('<div></div>'),
             profile: profile,
         });
-
-       const searchListItem = $();
 
         profileEls.push(`
             <div class="search-list-item">
