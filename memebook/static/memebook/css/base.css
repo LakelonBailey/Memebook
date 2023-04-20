@@ -154,10 +154,23 @@ section[data-section="loader-view"], section[data-section="search"] {
     height: 80vh;
 }
 
+#search-form {
+  height: 10%;
+}
+
 #search-results {
-  height: 90%;
+  max-height: 80%;
   overflow-y: scroll;
   overflow-x: hidden;
+}
+.friendship-decision-cont {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.friendship-decision-cont .label {
+  margin-right: 8px;
 }
 .search-list-item {
   height: 4vh;

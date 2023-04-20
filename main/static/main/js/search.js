@@ -3,18 +3,29 @@ const searchProfiles = async () => {
     const response = await sendGet('/profiles/?search_input=' + search_input);
     const profiles = response.data.profiles;
     $('#search-results').html('<div class="lds-roller"><div></div><div></div><div></div><div></div></div>');
-    const profileEls = profiles.map(profile => {
-        return $(`
-            <div class="search-list-item section-load" data-section="profile" data-profileuuid="${profile.uuid}">
-                <div>
-                    <p>${profile.first_name} ${profile.last_name}</p>
-                </div>
-                ${profile.is_friend ? '<div><span><i class="fas fa-check"></i></span> <span>Friends</span></div>' : ''}
-            </div>
-        `)
-    });
+    let profileEls = [];
+    for (let profile of profiles) {
+        const friendStatusEl = await loadFriendshipStatusButton({
+            el: $('<div class="friendship-status-buttons"></div>'),
+            profile: profile,
+        });
 
-    $('#search-results').html(profileEls);
+       const searchListItem = $();
+
+        profileEls.push(`
+            <div class="search-list-item">
+                <div>
+                    <a class="section-load" data-section="profile" data-profileuuid="${profile.uuid}">${profile.first_name} ${profile.last_name}</a>
+                </div>
+                <div class="friendship-status-buttons">
+                    ${friendStatusEl.html()}
+                </div>
+            </div>
+        `);
+    }
+
+    profileEls = await Promise.all(profileEls);
+    $('#search-results').html(profileEls.join(''));
 }
 
 const loadSearch = async () => {
@@ -22,7 +33,6 @@ const loadSearch = async () => {
 }
 
 $(document).ready(function() {
-    loadSearch();
 
     $('#search-form').on('submit', async function(event) {
         event.preventDefault();

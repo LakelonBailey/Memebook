@@ -44,6 +44,95 @@ const listMemes = (el, memes, totalMemes) => {
     el.append(memeEls.join(''));
 }
 
+
+const decideFriendship = async decisionData => {
+    await sendPost('/decide-friendship/', decisionData);
+}
+
+const requestFriend = async friendData => {
+    await sendPost('/request-friendship/', friendData);
+}
+
+const removeFriend = async friendData => {
+    await sendPost('/remove-friend/', friendData);
+}
+
+const cancelFriendRequest = async friendData => {
+    await sendPost('/cancel-friend-request/', friendData);
+}
+
+
+const loadFriendshipStatusButton = async ({el, profile, profileUUID, reloadProfile} = {reloadProfile: true}) => {
+    if (el == undefined) {
+        console.log('no el');
+        return;
+    }
+    if (profileUUID == undefined && profile == undefined) {
+        console.log('no uuid or profile');
+        return;
+    }
+    if (profileUUID && profile == undefined) {
+        const response = await sendGet(`/friendship-status/${profileUUID}/`);
+        if (!response.ok) {
+            console.log('bad response');
+            return;
+        }
+
+        profile = response.data;
+    }
+
+    let buttonEl;
+    if (profile.is_friend) {
+        buttonEl = `
+        <button class="button is-small remove-friend-button" data-friend_uuid="${profile.uuid}">
+            <span class="icon">
+              <i class="fa-solid fa-xmark"></i>
+            </span>
+            <span>Remove Friend</span>
+        </button>
+        `
+    }
+    else if (profile.user_requested_friendship) {
+        buttonEl = `
+        <button class="button is-small friend-request-button" data-action="cancel" data-requestee_uuid="${profile.uuid}">
+            <span class="icon">
+            <i class="fa-solid fa-xmark"></i>
+            </span>
+            <span>Cancel Friend Request</span>
+        </button>
+        `;
+    }
+    else if (profile.requested_user_friendship) {
+        buttonEl = `
+        <div class="field friendship-decision-cont">
+            <label class="label is-small">${profile.first_name} wants to be your friend:</label>
+            <div class="buttons">
+                <button class="button is-small friendship-decision-button is-success" data-action="accept" data-requester_uuid="${profile.uuid}">Accept</button>
+                <button class="button is-small friendship-decision-button" data-action="ignore" data-requester_uuid="${profile.uuid}">Ignore</button>
+            </div>
+        </div>
+        `;
+    }
+    else {
+        buttonEl = `
+        <button class="button is-small friend-request-button is-success" data-action="request" data-requestee_uuid="${profile.uuid}">
+            <span class="icon">
+              <i class="fa-solid fa-plus"></i>
+            </span>
+            <span>Add Friend</span>
+        </button>
+        `
+    }
+
+    el.html(buttonEl);
+
+    if (reloadProfile && window.CURRENT_SECTION == 'profile') {
+        loadProfile(profile.uuid);
+    }
+
+    return el;
+}
+
 $(document).ready(function() {
     window.MEME_PAGINATION_SIZE = 25;
     window.MEME_PAGINATION_PAGE = 1;
@@ -90,6 +179,9 @@ $(document).ready(function() {
         }
         else if (section == 'feed') {
             await loadFeed();
+        }
+        else if (section == 'search') {
+            await loadSearch();
         }
 
         localStorage.setItem(
@@ -178,5 +270,58 @@ $(document).ready(function() {
         }
 
         window.CURRENT_TAB = tabName;
+    });
+
+    $(document).on('click','.friendship-decision-button', async function() {
+        const button = $(this);
+        const container = button.closest('.friendship-status-buttons');
+        button.addClass('is-loading');
+        await decideFriendship(button.data());
+        await loadFriendshipStatusButton({
+            el: container,
+            profileUUID: button.data('requester_uuid'),
+            reloadProfile: button.data('action') == 'accept'
+        });
+    })
+
+    $(document).on('click', '.friend-request-button', async function() {
+        const button = $(this);
+        const container = button.closest('.friendship-status-buttons');
+        button.addClass('is-loading');
+        if (button.data('action') == 'request') {
+            await requestFriend(button.data());
+        }
+        else {
+            await cancelFriendRequest(button.data());
+        }
+
+        await loadFriendshipStatusButton({
+            el: container,
+            profileUUID: button.data('requestee_uuid'),
+            reloadProfile: false
+        });
+    })
+
+    $(document).on('click', '.remove-friend-button', async function() {
+        const {isConfirmed} = await swalConfirm.fire({
+            title: 'Are you sure?',
+            icon: 'warning',
+            text: "Are you sure you want to remove this friend?",
+            showDenyButton: true,
+            confirmButtonText: 'Yes',
+            denyButtonText: `No`,
+        });
+
+        if (!isConfirmed) {
+            return;
+        }
+        const button = $(this);
+        const container = button.closest('.friendship-status-buttons');
+        button.addClass('is-loading');
+        await removeFriend(button.data());
+        await loadFriendshipStatusButton({
+            el: container,
+            profileUUID: button.data('friend_uuid')
+        });
     })
 })

@@ -13,6 +13,7 @@ from django.db import models
 from django.db.models import Case, When, Value
 from functools import reduce
 from operator import or_
+from django.shortcuts import get_object_or_404
 import math
 
 @login_required
@@ -167,7 +168,7 @@ def request_friend(request, profile: Profile):
 def cancel_friend_request(request, profile: Profile):
     data = json.loads(request.body)
     FriendRequest.objects.filter(
-        requestee_uuid=data['requestee_uuid'],
+        requestee_id=data['requestee_uuid'],
         requester=profile
     ).delete()
 
@@ -215,6 +216,34 @@ def remove_friend(request, profile: Profile):
 
 @require_GET
 @attach_profile
+def get_friendship_status(request, user_profile, profile_uuid):
+    profile = (
+        Profile.objects
+        .filter(
+            uuid=profile_uuid
+        )
+        .annotate(
+            is_friend=Case(
+                When(
+                    friends__uuid=user_profile.uuid,
+                    then=Value(True)
+                ),
+                default=Value(False)
+            ),
+            user_requested_friendship=Case(When(received_requests__requester=user_profile, then=Value(True)), default=Value(False)),
+            requested_user_friendship=Case(When(sent_requests__requestee=user_profile, then=Value(True)), default=Value(False))
+        )
+        .first()
+    )
+    if profile is None:
+        return Http404()
+
+    return JsonResponse(profile.dict())
+
+
+
+@require_GET
+@attach_profile
 def profile_search(request, profile: Profile):
     response_data = {}
     query_dict = request.GET.dict()
@@ -243,8 +272,8 @@ def profile_search(request, profile: Profile):
                 ),
                 default=Value(False)
             ),
-            # user_requested_friendship=Case(When(received_requests__requester=profile, then=Value(True)), default=Value(False)),
-            # requested_user_friendship=Case(When(sent_requests__requestee=profile, then=Value(True)), default=Value(False))
+            user_requested_friendship=Case(When(received_requests__requester=profile, then=Value(True)), default=Value(False)),
+            requested_user_friendship=Case(When(sent_requests__requestee=profile, then=Value(True)), default=Value(False))
         )
         .order_by('first_name', 'last_name')
     )
@@ -257,8 +286,9 @@ def profile_search(request, profile: Profile):
             'first_name',
             'last_name',
             'is_friend',
-            # 'requested_user_friendship',
-            # 'user_requested_friendship'
+            'is_private',
+            'requested_user_friendship',
+            'user_requested_friendship'
         ))
 
 
