@@ -5,3 +5,10 @@ Date - Time - Description
 03/28/2023 - 6 hours - Developed basic UI/UX and JavaScript functionality to create meme. Once meme preview is accepted by user, python adds text to the meme on the backend.
 03/28/2023 - 1 hours - Met with Cooper to explain my progress so far as well as explain high-level basics of a functioning Django web application and some of the helper functions/classes I implemented from previous projects.
 03/29/2023 - 4 hours - Developed basic skeleton of other pages, such as profile, loading page, and page to view one meme. Developed API access to Comments to allow users to comment on memes
+04/16/2023 - 6 hours - Created general feed and meme listing, added ability to like and comment on listed memes, resolved errors preventing a deploy to production
+04/17/2023 - 6 hours - Added basic "pagination" to feed and profile, developed function to create fake data in order to improve testing capability
+04/18/2023 - 2 hours - Added basic functionality of friend searching
+04/20/2023 - 4 hours - Created reusable functionality for insertion of friendship status button, adjusted assorted errors involved in rendering profile/search/etc.
+
+
+TOTAL ON 04/20/2023 - 37 hours
