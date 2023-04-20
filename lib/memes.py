@@ -61,7 +61,7 @@ def create_meme_image(default_slug, top_text, bottom_text):
     return output_meme
 
 
-def create_meme(profile, meme_data):
+def create_meme(profile, meme_data, save=True):
     top_text = meme_data['top_text']
     bottom_text = meme_data['bottom_text']
     template_slug = meme_data['template_slug']

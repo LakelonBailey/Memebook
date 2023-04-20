@@ -5,23 +5,17 @@ from django.contrib.auth import authenticate, login as auth_login, logout as aut
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST, require_GET
 import json
-from memebook import settings
-from main.models import Meme, DefaultTemplate, Profile, FriendRequest, Like
+from main.models import Profile, FriendRequest, Like
 from lib.memes import create_meme
 from lib.decorators import attach_profile
 from django.db import models
 from django.db.models import Case, When, Value
 from functools import reduce
 from operator import or_
-import math
 
 @login_required
 @attach_profile
 def index(request, profile: Profile):
-    # FriendRequest.objects.get_or_create(
-    #     requester_id='27d1d996-c21a-4935-91dd-544aeaa3169e',
-    #     requestee=profile
-    # )
     context = {
         'logged_in': request.user.is_authenticated,
         'profile': profile.dict()
@@ -167,7 +161,7 @@ def request_friend(request, profile: Profile):
 def cancel_friend_request(request, profile: Profile):
     data = json.loads(request.body)
     FriendRequest.objects.filter(
-        requestee_uuid=data['requestee_uuid'],
+        requestee_id=data['requestee_uuid'],
         requester=profile
     ).delete()
 
@@ -215,6 +209,34 @@ def remove_friend(request, profile: Profile):
 
 @require_GET
 @attach_profile
+def get_friendship_status(request, user_profile, profile_uuid):
+    profile = (
+        Profile.objects
+        .filter(
+            uuid=profile_uuid
+        )
+        .annotate(
+            is_friend=Case(
+                When(
+                    friends__uuid=user_profile.uuid,
+                    then=Value(True)
+                ),
+                default=Value(False)
+            ),
+            user_requested_friendship=Case(When(received_requests__requester=user_profile, then=Value(True)), default=Value(False)),
+            requested_user_friendship=Case(When(sent_requests__requestee=user_profile, then=Value(True)), default=Value(False))
+        )
+        .first()
+    )
+    if profile is None:
+        return Http404()
+
+    return JsonResponse(profile.dict())
+
+
+
+@require_GET
+@attach_profile
 def profile_search(request, profile: Profile):
     response_data = {}
     query_dict = request.GET.dict()
@@ -243,8 +265,8 @@ def profile_search(request, profile: Profile):
                 ),
                 default=Value(False)
             ),
-            # user_requested_friendship=Case(When(received_requests__requester=profile, then=Value(True)), default=Value(False)),
-            # requested_user_friendship=Case(When(sent_requests__requestee=profile, then=Value(True)), default=Value(False))
+            user_requested_friendship=Case(When(received_requests__requester=profile, then=Value(True)), default=Value(False)),
+            requested_user_friendship=Case(When(sent_requests__requestee=profile, then=Value(True)), default=Value(False))
         )
         .order_by('first_name', 'last_name')
     )
@@ -257,8 +279,9 @@ def profile_search(request, profile: Profile):
             'first_name',
             'last_name',
             'is_friend',
-            # 'requested_user_friendship',
-            # 'user_requested_friendship'
+            'is_private',
+            'requested_user_friendship',
+            'user_requested_friendship'
         ))
 
 

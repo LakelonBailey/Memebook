@@ -48,6 +48,9 @@ class Command(BaseCommand):
             Meme.objects.all().delete()
             DefaultTemplate.objects.all().delete()
 
+            print('Deleting all media files...')
+            call_command('clearmediafiles')
+
         print('Loading default templates...')
         call_command('loaddefaults')
 

@@ -20,5 +20,6 @@ urlpatterns = [
     path('cancel-friend-request/', cancel_friend_request, name='cancel_friend_request'),
     path('remove-friend/', remove_friend, name='remove_friend'),
     path('profiles/', profile_search, name='profile_search'),
+    path('friendship-status/<str:profile_uuid>/', get_friendship_status, name='get_friendship_status'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
