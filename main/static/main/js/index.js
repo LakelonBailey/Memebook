@@ -34,7 +34,7 @@ const listMemes = (el, memes, totalMemes) => {
                 </a>
                 <div class="meme-info-icons">
                     <p class="like-meme" data-memeuuid="${meme.uuid}" data-action="${meme.liked_by_user ? 'delete' : 'add'}"><i class="${meme.liked_by_user ? 'fa-solid' : 'fa-regular'} fa-heart" style="color: #ff0000;"></i> <span class="like-count">${meme.like_count}</span></p>
-                    <p><i class="fa-solid fa-comment" style="color: gray;"></i> <span>${meme.comment_count}</span></p>
+                    <p><i class="${meme.commented_by_user ? 'fa-solid' : 'fa-regular'} fa-comment" style="color: gray;"></i> <span>${meme.comment_count}</span></p>
                 </div>
             </div>
         </div>
@@ -130,7 +130,7 @@ const loadFriendshipStatusButton = async ({el, profile, profileUUID, reloadProfi
 }
 
 $(document).ready(function() {
-    window.MEME_PAGINATION_SIZE = 25;
+    window.MEME_PAGINATION_SIZE = 9;
     window.MEME_PAGINATION_PAGE = 1;
 
     window.LOAD_SECTION = async function(section, data={}) {

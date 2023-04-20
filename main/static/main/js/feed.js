@@ -21,7 +21,7 @@ const loadFeedMemes = async (memes=null, lastPage) => {
 
 const loadFeed = async () => {
     window.MEME_PAGINATION_PAGE = 1;
-    window.MEME_PAGINATION_SIZE = 25;
+    window.MEME_PAGINATION_SIZE = 9;
     $('.section-tab').closest('li').removeClass('is-active');
     $('.section-tab[data-tab="popular"]').closest('li').addClass('is-active');
     await loadFeedMemes();

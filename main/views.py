@@ -5,24 +5,17 @@ from django.contrib.auth import authenticate, login as auth_login, logout as aut
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST, require_GET
 import json
-from memebook import settings
-from main.models import Meme, DefaultTemplate, Profile, FriendRequest, Like
+from main.models import Profile, FriendRequest, Like
 from lib.memes import create_meme
 from lib.decorators import attach_profile
 from django.db import models
 from django.db.models import Case, When, Value
 from functools import reduce
 from operator import or_
-from django.shortcuts import get_object_or_404
-import math
 
 @login_required
 @attach_profile
 def index(request, profile: Profile):
-    # FriendRequest.objects.get_or_create(
-    #     requester_id='27d1d996-c21a-4935-91dd-544aeaa3169e',
-    #     requestee=profile
-    # )
     context = {
         'logged_in': request.user.is_authenticated,
         'profile': profile.dict()

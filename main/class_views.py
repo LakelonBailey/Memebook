@@ -5,6 +5,7 @@ from main.models import Comment, Like, Meme
 from django.utils.decorators import method_decorator
 from lib.decorators import attach_profile
 from django.db import models
+from django.db.models import Case, When, Value
 from pprint import pprint
 import math
 
@@ -88,7 +89,7 @@ class Memes(View):
 
         query_dict = request.GET.dict()
         page = int(query_dict.get('page', 1))
-        size = int(query_dict.get('size', 25))
+        size = int(query_dict.get('size', 9))
         filter_friends = query_dict.get('filter_friends', 'False') == 'True'
         filter_liked = query_dict.get('filter_liked', 'False') == 'True'
 
@@ -139,12 +140,16 @@ class Memes(View):
             meme.liked_by_user = meme.likes.filter(
                 profile=profile
             ).exists()
+            meme.commented_by_user = meme.comments.filter(
+                profile=profile
+            ).exists()
 
             response_data['memes'].append(meme.dict(
                 'profile',
                 'like_count',
                 'comment_count',
                 'liked_by_user',
+                'commented_by_user',
                 'uuid',
                 'image',
                 keep_related=True
