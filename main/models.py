@@ -1,7 +1,6 @@
 from django.db import models
 from lib.models import BaseClass
 from django.contrib.auth.models import User
-import uuid
 
 
 def format_slugname(slug_name):
@@ -77,3 +76,13 @@ class FriendRequest(BaseClass):
         self.requester.friends.add(self.requestee)
         self.requester.save()
         self.delete()
+
+class Message(BaseClass):
+    sender = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='sent_messages')
+    recipient = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='received_messages')
+    text = models.TextField()
+    is_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.sender.full_name()} -> {self.recipient.full_name()}: {self.text}"
+

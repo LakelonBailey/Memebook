@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.db.models import ForeignObjectRel
 import uuid
 from django.utils import timezone
+import datetime
 
 # Package Imports
 import inspect, importlib
@@ -123,6 +124,9 @@ class BaseClass(Model):
                         value = value.url
                     else:
                         continue
+
+                if isinstance(value, uuid.UUID) or isinstance(value, datetime.date) or isinstance(value, datetime.datetime):
+                    value = str(value)
 
                 # Handle relational fields
                 if issubclass(type(value), Model):

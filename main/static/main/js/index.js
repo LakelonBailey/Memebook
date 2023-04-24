@@ -179,6 +179,9 @@ $(document).ready(function() {
         else if (section == 'search') {
             await loadSearch();
         }
+        else if (section == 'messaging') {
+            await loadMessaging();
+        }
 
         localStorage.setItem(
             'sectionData',
@@ -216,10 +219,13 @@ $(document).ready(function() {
         window.LOAD_SECTION(window.FIRST_PAGE);
         return;
     }
+
     const mainSection = 'profile';
-    let section = localStorage.getItem('section') || mainSection;
     const hiddenSections = ['loader-view'];
+
+    let section = localStorage.getItem('section') || mainSection;
     section = hiddenSections.includes(section) ? mainSection : section;
+
     const sectionData = JSON.parse(localStorage.getItem('sectionData') || "{}");
     window.LOAD_SECTION(section, sectionData);
 
