@@ -29,6 +29,7 @@ const loadFeed = async () => {
 
 const loadPopularFeed = async () => {
     window.MEME_PAGINATION_PAGE = 1;
+    window.MEME_PAGINATION_SIZE = 9;
 
     const response = await sendGet('/memes/');
     const memes = response.data.memes;

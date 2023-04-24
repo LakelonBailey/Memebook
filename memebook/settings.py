@@ -17,6 +17,17 @@ SECRET_KEY = env('SECRET_KEY')
 LOCAL = os.environ.get('DJANGO_LOCAL', 'False').lower() == 'true'
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
 
+
+# Use channels layer for Django's ASGI interface
+ASGI_APPLICATION = 'memebook.routing.application'
+
+# Channels layer configuration
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
+
 ALLOWED_HOSTS = ['ltb-memebook.herokuapp.com', 'localhost:8000']
 CSRF_TRUSTED_ORIGINS = ["https://ltb-memebook.herokuapp.com"]
 
@@ -29,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'memebook',
-    'main'
+    'main',
+    'channels'
 ]
 
 MIDDLEWARE = [
@@ -73,15 +85,18 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'memebook.wsgi.application'
 
 
 # Database Configuration
 if LOCAL:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': f"{BASE_DIR}/db.sqlite3",
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': env('LOCAL_DB_NAME', default=''),
+            'USER': env('LOCAL_DB_USER', default=''),
+            'PASSWORD': env('LOCAL_DB_PASSWORD', default=''),
+            'HOST': env('LOCAL_DB_HOST', default=''),
+            'PORT': env('LOCAL_DB_PORT', default='')
         }
     }
 else:

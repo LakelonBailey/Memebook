@@ -5,9 +5,10 @@ from main.models import Comment, Like, Meme
 from django.utils.decorators import method_decorator
 from lib.decorators import attach_profile
 from django.db import models
-from django.db.models import Case, When, Value
+from django.db.models import Count, Case, When, Value, BooleanField, Exists, OuterRef
 from pprint import pprint
 import math
+from lib.memes import sort_memes
 
 
 class Comments(View):
@@ -115,15 +116,21 @@ class Memes(View):
 
         memes = (
             Meme.objects
-            .filter(
-                **filters
+            .filter(**filters)
+            .annotate(
+                like_count=Count('likes', distinct=True),
+                comment_count=Count('comments', distinct=True),
+                liked_by_user=Exists(
+                    Like.objects.filter(profile=profile, meme=OuterRef('pk'))
+                ),
+                commented_by_user=Exists(
+                    Comment.objects.filter(profile=profile, meme=OuterRef('pk'))
+                ),
             )
-            .prefetch_related('likes', 'comments')
             .select_related('profile')
-            .distinct()
         )
 
-        total_results = memes.count()
+        total_results = len(memes)
 
         # Calculate number of pages
         last_page = math.ceil(total_results / size)
@@ -132,27 +139,6 @@ class Memes(View):
         # Calculate result range
         start = (page - 1) * size
         stop = start + size
-        memes = memes[start:stop]
-
-        for meme in memes:
-            meme.like_count = meme.likes.count()
-            meme.comment_count = meme.comments.count()
-            meme.liked_by_user = meme.likes.filter(
-                profile=profile
-            ).exists()
-            meme.commented_by_user = meme.comments.filter(
-                profile=profile
-            ).exists()
-
-            response_data['memes'].append(meme.dict(
-                'profile',
-                'like_count',
-                'comment_count',
-                'liked_by_user',
-                'commented_by_user',
-                'uuid',
-                'image',
-                keep_related=True
-            ))
+        response_data['memes'] = sort_memes(memes, size=total_results, start=start, stop=stop)
 
         return JsonResponse(response_data)

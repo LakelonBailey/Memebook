@@ -5,11 +5,11 @@ from django.contrib.auth import authenticate, login as auth_login, logout as aut
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST, require_GET
 import json
-from main.models import Profile, FriendRequest, Like
+from main.models import *
 from lib.memes import create_meme
 from lib.decorators import attach_profile
 from django.db import models
-from django.db.models import Case, When, Value
+from django.db.models import Case, When, Value, Q
 from functools import reduce
 from operator import or_
 
@@ -18,7 +18,7 @@ from operator import or_
 def index(request, profile: Profile):
     context = {
         'logged_in': request.user.is_authenticated,
-        'profile': profile.dict()
+        'profile_json': json.dumps(profile.dict()),
     }
     return render(request, 'index.html', context)
 
@@ -239,9 +239,9 @@ def get_friendship_status(request, user_profile, profile_uuid):
 @attach_profile
 def profile_search(request, profile: Profile):
     response_data = {}
-    query_dict = request.GET.dict()
+    query_dict = dict(request.GET.dict())
 
-    search_input = query_dict.get('search_input', '')
+    search_input = query_dict.pop('search_input', None)
     search_fields = ['first_name', 'last_name', 'user__username']
     search_filters = []
     if search_input:
@@ -289,3 +289,54 @@ def profile_search(request, profile: Profile):
 
     return JsonResponse(response_data)
 
+
+@require_GET
+@attach_profile
+def friend_search(request, profile: Profile):
+    query_dict = request.GET.dict()
+    search_input = query_dict.pop('search_input', None)
+    search_fields = ['first_name', 'last_name', 'user__username']
+    search_filters = []
+    if search_input:
+        terms = [term.strip() for term in search_input.split(' ') if term]
+        queries = [models.Q(**{f'{field}__icontains': t}) for t in terms for field in search_fields]
+        search_filters.append(reduce(or_, queries))
+
+    friends = (
+        profile.friends
+        .filter(
+            *search_filters
+        )
+        .order_by(
+            'first_name',
+            'last_name'
+        )
+    )
+
+    return JsonResponse({
+        'friends': [friend.dict(
+            'uuid',
+            'first_name',
+            'last_name'
+        ) for friend in friends]
+    })
+
+
+@require_GET
+@attach_profile
+def get_messages(request, profile, friend_uuid):
+    messages = Message.objects.filter(
+        Q(recipient=profile, sender_id=friend_uuid)
+        | Q(recipient_id=friend_uuid, sender=profile)
+    ).order_by('created_at')
+
+    serialized_messages = []
+    for message in messages:
+        message.is_user = message.sender == profile
+        serialized_messages.append(
+            message.dict()
+        )
+
+    return JsonResponse({
+        'messages': serialized_messages
+    })

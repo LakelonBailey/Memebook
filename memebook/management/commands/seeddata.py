@@ -47,6 +47,7 @@ class Command(BaseCommand):
             Profile.objects.all().delete()
             Meme.objects.all().delete()
             DefaultTemplate.objects.all().delete()
+            Message.objects.all().delete()
 
             print('Deleting all media files...')
             call_command('clearmediafiles')
