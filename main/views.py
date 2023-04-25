@@ -9,7 +9,7 @@ from main.models import *
 from lib.memes import create_meme
 from lib.decorators import attach_profile
 from django.db import models
-from django.db.models import Case, When, Value, Q, Subquery, F, CharField
+from django.db.models import Case, When, Value, Q, Subquery, F, CharField, Prefetch, OuterRef, TextField
 from django.db.models.functions import Concat
 from functools import reduce
 from operator import or_
@@ -299,10 +299,17 @@ def friend_search(request, profile: Profile):
     search_input = query_dict.pop('search_input', None)
     search_fields = ['first_name', 'last_name', 'user__username']
     search_filters = []
+
     if search_input:
         terms = [term.strip() for term in search_input.split(' ') if term]
         queries = [models.Q(**{f'{field}__icontains': t}) for t in terms for field in search_fields]
         search_filters.append(reduce(or_, queries))
+
+    # Subquery for the most recent message sent to profile
+    recent_message_subquery = Message.objects.filter(
+        Q(sender=OuterRef('pk'), recipient=profile)
+        | Q(sender=profile, recipient=OuterRef('pk'))
+    ).order_by('-created_at').values('text')[:1]
 
     friends = (
         profile.friends
@@ -313,13 +320,17 @@ def friend_search(request, profile: Profile):
             'first_name',
             'last_name'
         )
+        .annotate(
+            recent_message=Subquery(recent_message_subquery, output_field=TextField()),
+        )
     )
 
     return JsonResponse({
         'friends': [friend.dict(
             'uuid',
             'first_name',
-            'last_name'
+            'last_name',
+            'recent_message'
         ) for friend in friends]
     })
 

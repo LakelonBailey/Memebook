@@ -17,10 +17,6 @@ SECRET_KEY = env('SECRET_KEY')
 LOCAL = os.environ.get('DJANGO_LOCAL', 'False').lower() == 'true'
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
 
-
-# Use channels layer for Django's ASGI interface
-ASGI_APPLICATION = 'memebook.routing.application'
-
 # Channels layer configuration
 CHANNEL_LAYERS = {
     "default": {
@@ -28,8 +24,11 @@ CHANNEL_LAYERS = {
     }
 }
 
-ALLOWED_HOSTS = ['ltb-memebook.herokuapp.com', 'localhost:8000']
+
+
+ALLOWED_HOSTS = ['ltb-memebook.herokuapp.com', 'localhost', '127.0.0.1']
 CSRF_TRUSTED_ORIGINS = ["https://ltb-memebook.herokuapp.com"]
+ASGI_APPLICATION = 'memebook.asgi.application'
 
 # Application definition
 INSTALLED_APPS = [
@@ -41,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'memebook',
     'main',
-    'channels'
+    'channels',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
