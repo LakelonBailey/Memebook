@@ -42,7 +42,7 @@ const loadChat = async (friendUUID, friendName) => {
 
     // Initialize the WebSocket connection
     chatSocket = new WebSocket(
-        'ws://' + window.location.host +
+        window.WEBSOCKET_PROTOCOL + window.location.host +
         '/ws/messages/' + window.PROFILE.uuid + '/' + friendUUID + '/'
     );
 

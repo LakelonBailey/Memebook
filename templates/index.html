@@ -10,6 +10,7 @@
 </header>
 <script>
     window.PROFILE = JSON.parse('{{ profile_json }}'.split('&quot;').join('"'));
+    window.WEBSOCKET_PROTOCOL = '{{ LOCAL }}' == 'True' ? 'ws://' : 'wss://';
 </script>
 <main class="main">
     <section class="section">

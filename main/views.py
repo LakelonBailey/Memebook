@@ -12,6 +12,7 @@ from django.db import models
 from django.db.models import Case, When, Value, Q, Subquery, F, CharField, Prefetch, OuterRef, TextField
 from django.db.models.functions import Concat
 from functools import reduce
+from memebook.settings import LOCAL
 from operator import or_
 
 @login_required
@@ -20,6 +21,7 @@ def index(request, profile: Profile):
     context = {
         'logged_in': request.user.is_authenticated,
         'profile_json': json.dumps(profile.dict()),
+        'LOCAL': LOCAL
     }
 
     return render(request, 'index.html', context)
