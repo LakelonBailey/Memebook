@@ -3,6 +3,7 @@ from lib.models import BaseClass
 from django.contrib.auth.models import User
 from django.db.models import Case, When, Value, Q, Subquery, F, CharField
 from django.db.models.functions import Concat
+from memebook.settings import LOCAL, MEDIA_URL
 
 
 def format_slugname(slug_name):
@@ -76,6 +77,14 @@ class Meme(BaseClass):
 
     def __str__(self):
         return f"{str(self.profile)} - {str(self.template)}"
+
+    def image_url(self):
+        if LOCAL:
+            root = '/mediafiles'
+        else:
+            root = MEDIA_URL + 'media'
+        return f"{root}/{self.uuid}.jpeg"
+
 
 class Comment(BaseClass):
     profile = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True, blank=True, related_name='comments')

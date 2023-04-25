@@ -2,10 +2,11 @@ import django_heroku
 import environ
 import os
 import dj_database_url
+from pprint import pprint
 
 # Initialise environment variables
 env = environ.Env()
-environ.Env.read_env()
+env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -14,8 +15,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = env('SECRET_KEY')
 
 # Turn off LOCAL and DEBUG before pushing to production
-LOCAL = os.environ.get('DJANGO_LOCAL', 'False').lower() == 'true'
-DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
+LOCAL = env('DJANGO_LOCAL', default='False').lower() == 'true'
+DEBUG = env('DJANGO_DEBUG', default='False').lower() == 'true'
 
 USE_POSTGRES_LOCAL = False
 
@@ -175,6 +176,5 @@ LOGIN_URL = '/login/'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 django_heroku.settings(locals())
 
