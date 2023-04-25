@@ -17,6 +17,7 @@ SECRET_KEY = env('SECRET_KEY')
 LOCAL = os.environ.get('DJANGO_LOCAL', 'False').lower() == 'true'
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
 
+USE_POSTGRES_LOCAL = False
 
 # Use channels layer for Django's ASGI interface
 ASGI_APPLICATION = 'memebook.routing.application'
@@ -88,7 +89,7 @@ TEMPLATES = [
 
 
 # Database Configuration
-if LOCAL:
+if LOCAL and USE_POSTGRES_LOCAL:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -97,6 +98,13 @@ if LOCAL:
             'PASSWORD': env('LOCAL_DB_PASSWORD', default=''),
             'HOST': env('LOCAL_DB_HOST', default=''),
             'PORT': env('LOCAL_DB_PORT', default='')
+        }
+    }
+elif LOCAL:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': f"{BASE_DIR}/db.sqlite3",
         }
     }
 else:
