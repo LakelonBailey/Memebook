@@ -8,7 +8,7 @@ from django.db import models
 from django.db.models import Count, Case, When, Value, BooleanField, Exists, OuterRef
 from pprint import pprint
 import math
-from lib.memes import sort_memes
+from lib.sorting import sort_memes
 
 
 class Comments(View):
@@ -108,6 +108,7 @@ class Memes(View):
                         profile_id=profile_uuid
                     ).values_list('meme__uuid', flat=True)
                 )
+
             else:
                 filters['profile_id'] = query_dict['profile_uuid']
         else:
@@ -121,10 +122,10 @@ class Memes(View):
                 like_count=Count('likes', distinct=True),
                 comment_count=Count('comments', distinct=True),
                 liked_by_user=Exists(
-                    Like.objects.filter(profile=profile, meme=OuterRef('pk'))
+                    Like.objects.filter(profile=profile, meme=OuterRef('uuid'))
                 ),
                 commented_by_user=Exists(
-                    Comment.objects.filter(profile=profile, meme=OuterRef('pk'))
+                    Comment.objects.filter(profile=profile, meme=OuterRef('uuid'))
                 ),
             )
             .select_related('profile')

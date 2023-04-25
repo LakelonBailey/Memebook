@@ -5,59 +5,6 @@ from io import BytesIO
 from memebook.settings import BASE_DIR
 from main.models import Meme, DefaultTemplate
 from django.core.files import File
-import ctypes
-import numpy as np
-
-
-sort_memes_lib = ctypes.CDLL(
-    './lib/sort_memes.so'
-)
-
-sort_memes_lib.sort_on_likes.argtypes = [
-    ctypes.POINTER(ctypes.c_int),
-    ctypes.POINTER(ctypes.c_int),
-    ctypes.c_int
-]
-
-sort_memes_lib.sort_on_likes.restype = None
-
-
-def sort_memes(memes, sorter='like_count', start=0, stop=10, size=None):
-    # Calculate size
-    if size is None:
-        size = len(memes)
-
-    # Create temporary meme ids
-    meme_ids = list(range(size))
-
-    # Call necessary sorter
-    if sorter == 'like_count':
-
-        # Gather like counts
-        like_counts = [meme.like_count for meme in memes]
-
-        meme_ids_np = np.array(meme_ids, dtype=np.int32)
-        like_counts_np = np.array(like_counts, dtype=np.int32)
-
-        # Call the C++ function using ctypes
-        sort_memes_lib.sort_on_likes(
-            meme_ids_np.ctypes.data_as(ctypes.POINTER(ctypes.c_int)),
-            like_counts_np.ctypes.data_as(ctypes.POINTER(ctypes.c_int)),
-            size
-        )
-
-        new_memes = []
-        for meme_id in meme_ids_np.tolist()[start:stop]:
-            new_memes.append(memes[meme_id].dict(
-                exclude=['template'],
-                keep_related=True
-            ))
-
-        return new_memes
-
-
-
-
 
 def create_meme_image(default_slug, top_text, bottom_text):
     # Load the meme

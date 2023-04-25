@@ -1,6 +1,8 @@
 from django.db import models
 from lib.models import BaseClass
 from django.contrib.auth.models import User
+from django.db.models import Case, When, Value, Q, Subquery, F, CharField
+from django.db.models.functions import Concat
 
 
 def format_slugname(slug_name):
@@ -41,6 +43,28 @@ class Profile(BaseClass):
 
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
+
+    def get_liked_memes(self):
+        return Meme.objects.filter(
+            uuid__in=Subquery(
+                Like.objects.filter(
+                    profile_id=self.uuid
+                ).values_list('meme__uuid', flat=True)
+            ),
+            bottom_text__isnull=False,
+            top_text__isnull=False,
+        )
+
+    def get_liked_memes_text(self):
+        liked_memes = self.get_liked_memes()
+        liked_memes = (
+            liked_memes
+            .annotate(
+                total_text=Concat(F('top_text'), Value(' '), F('bottom_text'), output_field=CharField())
+            )
+            .values_list('total_text', flat=True)
+        )
+        return " ".join(list(liked_memes))
 
 
 class Meme(BaseClass):

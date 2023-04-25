@@ -9,7 +9,8 @@ from main.models import *
 from lib.memes import create_meme
 from lib.decorators import attach_profile
 from django.db import models
-from django.db.models import Case, When, Value, Q
+from django.db.models import Case, When, Value, Q, Subquery, F, CharField
+from django.db.models.functions import Concat
 from functools import reduce
 from operator import or_
 
@@ -20,6 +21,7 @@ def index(request, profile: Profile):
         'logged_in': request.user.is_authenticated,
         'profile_json': json.dumps(profile.dict()),
     }
+
     return render(request, 'index.html', context)
 
 
