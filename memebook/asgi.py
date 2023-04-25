@@ -5,12 +5,12 @@ from channels.auth import AuthMiddlewareStack
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'memebook.settings')
 
-django_asgi_app = get_asgi_application()
+application = get_asgi_application()
 
 from memebook.routing import websocket_urlpatterns
 
 application = ProtocolTypeRouter({
-    "http": django_asgi_app,
+    "http": application,
     "websocket": AuthMiddlewareStack(
         URLRouter(
             websocket_urlpatterns
