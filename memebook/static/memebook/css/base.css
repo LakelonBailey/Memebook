@@ -55,8 +55,6 @@ section.tab.box {
     min-width: 200px;
 }
 #recipient-header {
-  position: relative;
-  top: 24px;
   background-color: rgba(211, 211, 211, 0.925);
   padding: 4px 12px;
   border-top-right-radius: 5px;
@@ -235,7 +233,7 @@ section[data-section="loader-view"], section[data-section="search"] {
 .friend-list-item:hover {
   background-color: rgba(211, 211, 211, 0.673);
 }
-.recipients {
+.recipients.is-one-quarter {
   border-right: 1px solid lightgray;
 }
 
@@ -258,7 +256,8 @@ section[data-section="loader-view"], section[data-section="search"] {
   padding: 10px;
   background-color: rgba(211, 211, 211, 0.136);
   margin-top: 0;
-  border-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
 
 .message-form {
@@ -310,7 +309,52 @@ section[data-section="loader-view"], section[data-section="search"] {
 .message-list-item .notification {
   width: 75%;
   height: fit-content;
+  background-color: lightgray;
 }
+.message-list-item.typing-cont .notification {
+  width: fit-content;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+
+.typing-indicator {
+  width: 50px;
+  height: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.typing-indicator div {
+  width: 6px;
+  height: 6px;
+  background: #999;
+  border-radius: 50%;
+  animation: bounce 1s infinite ease-in-out;
+}
+
+.typing-indicator div:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.typing-indicator div:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: translateY(0);
+  }
+
+  40% {
+    transform: translateY(-10px);
+  }
+}
+
 
 
 

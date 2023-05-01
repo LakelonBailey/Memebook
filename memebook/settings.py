@@ -17,18 +17,10 @@ SECRET_KEY = env('SECRET_KEY')
 LOCAL = os.environ.get('DJANGO_LOCAL', 'False').lower() == 'true'
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
 
-# Channels layer configuration
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
-}
-
 
 
 ALLOWED_HOSTS = ['ltb-memebook.herokuapp.com', 'localhost', '127.0.0.1']
 CSRF_TRUSTED_ORIGINS = ["https://ltb-memebook.herokuapp.com"]
-ASGI_APPLICATION = 'memebook.asgi.application'
 
 # Application definition
 INSTALLED_APPS = [
@@ -106,6 +98,15 @@ else:
             ssl_require=True
         )
     }
+
+ASGI_APPLICATION = 'memebook.asgi.application'
+
+# Channels layer configuration
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 
 # AWS Configuration

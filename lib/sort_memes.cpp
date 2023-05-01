@@ -2,7 +2,8 @@
 #include <algorithm>
 #include <iostream>
 
-// Compile with: g++ -shared -o lib/sort_memes.so lib/sort_memes.cpp -fPIC -std=c++11 -target x86_64-apple-macos11
+// Compile with:
+// g++ -shared -o lib/sort_memes.so lib/sort_memes.cpp -fPIC -std=c++11 -target x86_64-apple-macos11
 extern "C" {
 
 

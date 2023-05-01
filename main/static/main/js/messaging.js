@@ -1,4 +1,6 @@
 let chatSocket;
+let isTyping = false;
+let isMobileFormat;
 const loadMessaging = async () => {
     await loadFriends();
 }
@@ -54,11 +56,25 @@ const loadChat = async (friendUUID, friendName) => {
     };
 
     chatSocket.onmessage = (event) => {
-        const messageData = JSON.parse(event.data).message;
-        messageData.is_user = messageData.recipient.uuid == window.RECIPIENT_UUID;
-        const messagesContainer = $('#message-list');
-        messagesContainer.append(messageListItem(messageData));
-        messagesContainer.scrollTop(messagesContainer.prop('scrollHeight'));
+        const {type, ...data} = JSON.parse(event.data);
+        if (type == 'chat_message') {
+            const messageData = data.message;
+            messageData.is_user = messageData.recipient.uuid == window.RECIPIENT_UUID;
+            const messagesContainer = $('#message-list');
+            messagesContainer.append(messageListItem(messageData));
+            scrollBottomMessages();
+        }
+        else if (type == 'start_typing') {
+            $('.typing-cont').remove();
+            if (data.typer_id == window.RECIPIENT_UUID) {
+                $('#message-list').append(typingElement(false));
+            }
+            scrollBottomMessages();
+        }
+        else if (type == 'stop_typing') {
+            $('.typing-cont').remove();
+            scrollBottomMessages();
+        }
     };
 
     chatSocket.onclose = (event) => {
@@ -74,14 +90,27 @@ const loadChat = async (friendUUID, friendName) => {
     const response = await sendGet(`/messages/${friendUUID}/`);
     const messages = response.data.messages;
     listMessages(messages);
-    const messagesContainer = document.getElementById("message-list");
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+const scrollBottomMessages = () => {
+    const messagesContainer = $('#message-list');
+    messagesContainer.scrollTop(messagesContainer.prop('scrollHeight'));
 }
 
 const listMessages = messages => {
     const messagesContainer = $('#message-list');
     messagesContainer.html(messages.map(messageListItem).join(''));
     $('.chat-container').show();
+}
+
+const typingElement = isUser => {
+    return `
+    <div class="message-list-item typing-cont ${isUser ? 'user-message' : 'friend-message'}">
+        <div class="notification">
+            <div class="typing-indicator"><div></div><div></div><div></div></div>
+        </div>
+    </div>
+    `
 }
 
 
@@ -95,14 +124,42 @@ const messageListItem = message => {
     `
 }
 
+const stopTyping = () => {
+    chatSocket.send(JSON.stringify({
+        action: 'stop_typing',
+        typer_id: window.PROFILE.uuid,
+    }));
+    isTyping = false;
+}
+
+const startTyping = () => {
+    chatSocket.send(JSON.stringify({
+        action: 'start_typing',
+        typer_id: window.PROFILE.uuid,
+    }));
+    isTyping = true;
+}
+
+const handleTyping = (text) => {
+    if (!text && isTyping) {
+        stopTyping();
+    }
+    else if (text && !isTyping) {
+        startTyping();
+    }
+}
+
 
 const sendMessage = messageText => {
     if (!(messageText && window.RECIPIENT_UUID)) {
         return;
     }
+
+    stopTyping();
     $('#chat-message-input').val('');
 
     chatSocket.send(JSON.stringify({
+        action: 'message',
         message: messageText,
         recipient_id: window.RECIPIENT_UUID
     }));
@@ -120,15 +177,19 @@ const loadFriends = async searchInput => {
 }
 
 const adjustMediaFormat = () => {
-    if (isMedia()) {
+    if (isMedia() && !isMobileFormat) {
         $('.recipients').removeClass('is-one-quarter');
+        $('.recipients').show();
         $('.messages').hide();
         $('#back-to-recipients').show();
+        isMobileFormat = true;
     }
-    else {
+    else if (isMobileFormat && !isMedia()) {
         $('.recipients').addClass('is-one-quarter');
+        $('.recipients').show();
         $('.messages').show();
         $('#back-to-recipients').hide();
+        isMobileFormat = false;
     }
 }
 
@@ -137,20 +198,27 @@ const adjustMediaFormat = () => {
 
 
 $(document).ready(function() {
-    adjustMediaFormat();
+    if (isMedia()) {
+        adjustMediaFormat();
+        isMobileFormat = true;
+    }
+    else {
+        isMobileFormat = false;
+    }
 
     $(window).on('resize', function() {
         adjustMediaFormat();
     })
 
-    $(document).on('click', '.friend-list-item', function() {
+    $(document).on('click', '.friend-list-item', async function() {
         const friendUUID = $(this).data('friend_uuid');
         const friendName = $(this).find('.friend-name').text();
-        loadChat(friendUUID, friendName);
+        await loadChat(friendUUID, friendName);
         if (isMedia()) {
             $('.recipients').hide();
             $('.messages').show();
         }
+        scrollBottomMessages();
     })
 
     $('#back-to-recipients').on('click', function() {
@@ -170,5 +238,10 @@ $(document).ready(function() {
     $('#chat-message-form').on('submit', function(event) {
         event.preventDefault();
         sendMessage($('#chat-message-input').val());
+    })
+
+    $('#chat-message-form').on('input', function(event) {
+        const text = $('#chat-message-input').val();
+        handleTyping(text);
     })
 })

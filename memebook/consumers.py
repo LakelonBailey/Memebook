@@ -20,20 +20,40 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_discard(self.room_name, self.channel_name)
 
     async def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        message = text_data_json['message']
-        recipient_id = text_data_json['recipient_id']
+        data = json.loads(text_data)
+        action = data['action']
+        if action == 'message':
+            message = data['message']
+            recipient_id = data['recipient_id']
 
 
-        new_message = await self.create_message(self.profile_id, recipient_id, message)
-        serialized_message = MessageSerializer(new_message).data
+            new_message = await self.create_message(self.profile_id, recipient_id, message)
+            serialized_message = MessageSerializer(new_message).data
 
 
-        await self.channel_layer.group_send(self.room_name, {'type': 'chat_message', 'message': serialized_message})
+            await self.channel_layer.group_send(self.room_name, {'type': 'chat_message', 'message': serialized_message})
+        elif action == 'start_typing':
+            typer_id = data['typer_id']
+            await self.channel_layer.group_send(self.room_name,{
+                'type': 'start_typing',
+                'typer_id': typer_id
+            })
+        elif action == 'stop_typing':
+            typer_id = data['typer_id']
+            await self.channel_layer.group_send(self.room_name,{
+                'type': 'stop_typing',
+                'typer_id': typer_id
+            })
 
     async def chat_message(self, event):
-        message = event['message']
-        await self.send(text_data=json.dumps({'message': message}))
+        await self.send(text_data=json.dumps(event))
+
+    async def start_typing(self, event):
+        await self.send(text_data=json.dumps(event))
+
+    async def stop_typing(self, event):
+        await self.send(text_data=json.dumps(event))
+
 
     @database_sync_to_async
     def get_profile(self, profile_id=None):
