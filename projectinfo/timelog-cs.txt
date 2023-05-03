@@ -4,3 +4,4 @@ Date - Time - Description
 03/28/2023 - 1 hours - Met with Lake to learn about high-level basics of a functioning Django web application
 04/20/2023 - 4 hours - started working on algorithm to sort the memes based on date, number of likes and similarity to user liked memes
 04/24/2023 - 5 hours - devised a formula and worked on implementation into the popular feed.
+05/02/2023 - 5 hours - completed relevancy sorting algorithm, and worked on implementing 
