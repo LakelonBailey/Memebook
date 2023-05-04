@@ -9,7 +9,7 @@ from main.models import *
 from lib.memes import create_meme
 from lib.decorators import attach_profile
 from django.db import models
-from django.db.models import Case, When, Value, Q, Subquery, F, CharField, Prefetch, OuterRef, TextField
+from django.db.models import Case, When, Value, Q, Subquery, F, CharField, Prefetch, OuterRef, TextField, Count
 from django.db.models.functions import Concat
 from functools import reduce
 from memebook.settings import LOCAL
@@ -308,10 +308,15 @@ def friend_search(request, profile: Profile):
         search_filters.append(reduce(or_, queries))
 
     # Subquery for the most recent message sent to profile
-    recent_message_subquery = Message.objects.filter(
+    recent_message_text_subquery = Message.objects.filter(
         Q(sender=OuterRef('pk'), recipient=profile)
         | Q(sender=profile, recipient=OuterRef('pk'))
     ).order_by('-created_at').values('text')[:1]
+
+    recent_message_time_subquery = Message.objects.filter(
+        Q(sender=OuterRef('pk'), recipient=profile)
+        | Q(sender=profile, recipient=OuterRef('pk'))
+    ).order_by('-created_at').values('created_at')[:1]
 
     friends = (
         profile.friends
@@ -323,7 +328,12 @@ def friend_search(request, profile: Profile):
             'last_name'
         )
         .annotate(
-            recent_message=Subquery(recent_message_subquery, output_field=TextField()),
+            recent_message=Subquery(recent_message_text_subquery, output_field=TextField()),
+            recent_message_time=Subquery(recent_message_time_subquery, output_field=TextField()),
+            num_unread=Count(
+                'sent_messages',
+                filter=Q(sent_messages__is_read=False, sent_messages__sender=F('uuid'))
+            )
         )
     )
 
@@ -331,6 +341,7 @@ def friend_search(request, profile: Profile):
         'friends': [friend.dict(
             'uuid',
             'first_name',
+            'num_unread',
             'last_name',
             'recent_message'
         ) for friend in friends]
@@ -348,6 +359,9 @@ def get_messages(request, profile, friend_uuid):
     serialized_messages = []
     for message in messages:
         message.is_user = message.sender == profile
+        if not (message.is_read or message.is_user):
+            message.is_read = True
+            message.save()
         serialized_messages.append(
             message.dict()
         )

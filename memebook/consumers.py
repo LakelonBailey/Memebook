@@ -11,7 +11,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.recipient_id = self.scope['url_route']['kwargs']['recipient_id']
         sorted_ids = sorted([self.profile_id, self.recipient_id])
         self.room_name = f"chat_{'_'.join(sorted_ids)}"
-        print('ROOM NAME:', self.room_name)
 
         await self.channel_layer.group_add(self.room_name, self.channel_name)
         await self.accept()

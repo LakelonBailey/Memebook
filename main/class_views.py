@@ -96,12 +96,15 @@ class Memes(View):
 
         profile_uuid = query_dict.get('profile_uuid', None)
         filters = {}
+        secondary_filters = {}
 
         if filter_friends:
+            sorter = "relevance"
             filters['profile__in'] = models.Subquery(
                 profile.friends.values_list('uuid', flat=True)
             )
         elif profile_uuid:
+            sorter = "recent"
             if filter_liked:
                 filters['uuid__in'] = models.Subquery(
                     Like.objects.filter(
@@ -112,8 +115,10 @@ class Memes(View):
             else:
                 filters['profile_id'] = query_dict['profile_uuid']
         else:
+            sorter = "relevance"
             filters['profile__isnull'] = False
             filters['profile__is_private'] = False
+            secondary_filters['liked_by_user'] = False
 
         memes = (
             Meme.objects
@@ -128,18 +133,25 @@ class Memes(View):
                     Comment.objects.filter(profile=profile, meme=OuterRef('uuid'))
                 ),
             )
+            .filter(**secondary_filters)
             .select_related('profile')
         )
 
         total_results = len(memes)
 
         # Calculate number of pages
-        last_page = math.ceil(total_results / size)
-        response_data['last_page'] = last_page
+        response_data['last_page'] = math.ceil(total_results / size)
 
         # Calculate result range
         start = (page - 1) * size
         stop = start + size
-        response_data['memes'] = sort_memes(memes, size=total_results, start=start, stop=stop)
+        response_data['memes'] = sort_memes(
+            memes,
+            profile=profile,
+            sorter=sorter,
+            size=total_results,
+            start=start,
+            stop=stop
+        )
 
         return JsonResponse(response_data)

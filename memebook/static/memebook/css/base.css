@@ -227,6 +227,10 @@ section[data-section="loader-view"], section[data-section="search"] {
   max-height: 90vh;
   overflow-y: auto;
 }
+.friend-name {
+  display: flex;
+  width: 100%;
+}
 .friend-list-item:last-child {
   border-bottom: 1px solid lightgray;
 }
@@ -292,24 +296,25 @@ section[data-section="loader-view"], section[data-section="search"] {
 
 .message-list-item {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   width: 100%;
   margin: 12px 0;
 }
 .message-list-item.user-message {
-  justify-content: flex-end;
+  align-items: flex-end;
   color: lightgray;
 }
 .message-list-item.user-message .notification {
   background-color: #0056b3;
 }
 .message-list-item.friend-message {
-  justify-content: flex-start;
+  align-items: flex-start;
 }
 .message-list-item .notification {
   width: 75%;
   height: fit-content;
   background-color: lightgray;
+  margin: 0;
 }
 .message-list-item.typing-cont .notification {
   width: fit-content;
@@ -317,6 +322,11 @@ section[data-section="loader-view"], section[data-section="search"] {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.read-receipt {
+  color: black;
+  font-size: small;
+  margin: 0 12px;
 }
 
 
@@ -402,6 +412,22 @@ section[data-section="loader-view"], section[data-section="search"] {
 }
 .search-form .button {
   flex: 1;
+}
+
+.notif-count {
+  margin-left: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 18px;
+  width: fit-content;
+  border-radius: 10px;
+  padding: 4px 6px;
+  font-size: 12px;
+  color: white;
+  font-family:  'Rubik', sans-serif;
+  font-weight: bold;
+  background-color: rgb(5, 63, 255);
 }
 
 

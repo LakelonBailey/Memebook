@@ -26,7 +26,7 @@ const listFriends = friends => {
 
         return `
         <div class="friend-list-item" data-friend_uuid="${friend.uuid}">
-            <p class="friend-name">${friend.first_name} ${friend.last_name}</p>
+            <p class="friend-name">${friend.first_name} ${friend.last_name} ${friend.num_unread ? `<span class="notif-count">${friend.num_unread} Unread</span>` : ''}</p>
             <p class="friend-recent-message">${recentMessage}</p>
         </div>
         `;
@@ -40,6 +40,7 @@ const loadChat = async (friendUUID, friendName) => {
             chatSocket.close();
         }
     }
+
     $('#recipient-name').text(friendName);
 
     // Initialize the WebSocket connection
@@ -52,7 +53,7 @@ const loadChat = async (friendUUID, friendName) => {
 
     // Add event listeners for the WebSocket
     chatSocket.onopen = (event) => {
-        // console.log('WebSocket connection opened:', event);
+        return;
     };
 
     chatSocket.onmessage = (event) => {
@@ -90,6 +91,7 @@ const loadChat = async (friendUUID, friendName) => {
     const response = await sendGet(`/messages/${friendUUID}/`);
     const messages = response.data.messages;
     listMessages(messages);
+    loadFriends();
 }
 
 const scrollBottomMessages = () => {
@@ -99,7 +101,17 @@ const scrollBottomMessages = () => {
 
 const listMessages = messages => {
     const messagesContainer = $('#message-list');
-    messagesContainer.html(messages.map(messageListItem).join(''));
+    const numUserMessages = messages.filter(message => message.is_user).length;
+    let userMessageIndex = 0;
+    messagesContainer.html(messages.map((message) => {
+        let isLastUserMessage = false;
+        if (message.is_user) {
+            isLastUserMessage = userMessageIndex == numUserMessages - 1;
+            userMessageIndex += 1;
+        }
+        return messageListItem(message, isLastUserMessage);
+    }).join(''));
+
     $('.chat-container').show();
 }
 
@@ -113,13 +125,35 @@ const typingElement = isUser => {
     `
 }
 
+function getReadReceipt(datetime) {
+    const dateObj = new Date(datetime);
+    const now = new Date();
+    const millisecondsPerDay = 86400000;
+    const millisecondsPerWeek = 604800000;
+    const timeString = dateObj.toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'});
+    const weekdayString = dateObj.toLocaleDateString([], {weekday: 'long'});
+    const dateString = dateObj.toLocaleDateString();
 
-const messageListItem = message => {
+    const timeDiff = now.getTime() - dateObj.getTime();
+
+    if (timeDiff < millisecondsPerDay) {
+      return timeString;
+    } else if (timeDiff < millisecondsPerWeek) {
+      return weekdayString;
+    } else {
+      return dateString;
+    }
+  }
+
+
+
+const messageListItem = (message, isLastUserMessage) => {
     return `
-    <div class="message-list-item ${message.is_user ? 'user-message' : 'friend-message'}">
+    <div class="message-list-item ${message.is_user ? 'user-message' : 'friend-message'} ${isLastUserMessage ? 'last-user-message' : ''}">
         <div class="notification">
             <p>${message.text}</p>
         </div>
+        <p class="read-receipt"> ${message.is_read && isLastUserMessage ? `Read ${getReadReceipt(message.read_time)}` : ''}</p>
     </div>
     `
 }

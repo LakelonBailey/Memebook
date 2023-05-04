@@ -3,6 +3,7 @@ from lib.models import BaseClass
 from django.contrib.auth.models import User
 from django.db.models import Case, When, Value, Q, Subquery, F, CharField
 from django.db.models.functions import Concat
+from django.utils import timezone
 
 
 def format_slugname(slug_name):
@@ -66,7 +67,7 @@ class Profile(BaseClass):
             )
             .values_list('total_text', flat=True)
         )
-        return " ".join(list(liked_memes))
+        return list(liked_memes)
 
 
 class Meme(BaseClass):
@@ -108,7 +109,14 @@ class Message(BaseClass):
     recipient = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='received_messages')
     text = models.TextField()
     is_read = models.BooleanField(default=False)
+    read_time = models.DateTimeField(null=True)
 
     def __str__(self):
         return f"{self.sender.full_name()} -> {self.recipient.full_name()}: {self.text}"
+
+    def save(self, *args, **kwargs):
+        if self.is_read and not self.read_time:
+            self.read_time = timezone.localtime()
+
+        super(Message, self).save(*args, **kwargs)
 

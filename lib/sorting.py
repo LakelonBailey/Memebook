@@ -1,7 +1,8 @@
 import ctypes
 import numpy as np
 from main.models import Meme
-from django.db.models import F
+from django.db.models import Case, When, Value, Q, Subquery, F, CharField
+from django.db.models.functions import Concat
 from time import time
 
 
@@ -19,7 +20,7 @@ int_type = ctypes.c_int
 
 
 
-sort_memes_lib.sort_on_likes.argtypes = [
+sort_memes_lib.sort_on_recent.argtypes = [
     int_type,
     int_arr_type,
     int_arr_type
@@ -27,12 +28,15 @@ sort_memes_lib.sort_on_likes.argtypes = [
 sort_memes_lib.sort_on_relevance.argtypes = [
     int_type,
     int_arr_type,
+    int_arr_type,
     string_arr_type,
+    int_arr_type,
+    int_arr_type,
     string_arr_type,
-    int_arr_type
+    int_type,
 ]
 
-sort_memes_lib.sort_on_likes.restype = None
+sort_memes_lib.sort_on_recent.restype = None
 sort_memes_lib.sort_on_relevance.restype = None
 
 
@@ -73,39 +77,44 @@ def sort_memes(memes, profile=None, sorter='like_count', start=0, stop=10, size=
 
     # Determine sorter function and add necessary arguments
     sort_func = None
-    if sorter == 'like_count':
+    if sorter == 'recent':
 
         # Set sorter function
-        sort_func = sort_memes_lib.sort_on_likes
+        sort_func = sort_memes_lib.sort_on_recent
 
         # Gather like counts and add to args
-        like_counts = [meme.like_count for meme in memes]
+        times_created = [int(meme.created_at.timestamp()) for meme in memes]
         args.append(
-            int_list_arg(int_list(like_counts))
+            int_list_arg(int_list(times_created))
         )
 
     elif sorter == 'relevance':
-
         # NOTE: Uncomment this line when you start using the liked_memes_text with this
         if profile is None:
             return []
 
+        liked_memes_text = profile.get_liked_memes_text()
+
         # Set sorter function
         sort_func = sort_memes_lib.sort_on_relevance
 
-        # Gather top and bottom texts and add to args
-        bottom_texts = []
-        top_texts = []
+        meme_texts = []
         times_created = []
+        like_counts = []
+        comment_counts = []
         for meme in memes:
-            bottom_texts.append(meme.bottom_text)
-            top_texts.append(meme.top_text)
+            meme_texts.append(f"{meme.top_text} {meme.bottom_text}")
+            like_counts.append(meme.like_count)
+            comment_counts.append(meme.comment_count)
             times_created.append(int(meme.created_at.timestamp()))
 
         args.extend([
-            string_list_arg(top_texts),
-            string_list_arg(bottom_texts),
+            int_list_arg(int_list(like_counts)),
+            string_list_arg(meme_texts),
+            int_list_arg(int_list(comment_counts)),
             int_list_arg(int_list(times_created)),
+            string_list_arg(liked_memes_text),
+            len(liked_memes_text)
         ])
 
     # A valid sorter string was not passed
@@ -113,9 +122,7 @@ def sort_memes(memes, profile=None, sorter='like_count', start=0, stop=10, size=
         return []
 
     # Call sorter function
-    start_time = time()
     sort_func(*args)
-    print(time() - start_time)
 
     # Gather and return sorted memes
     new_memes = []
