@@ -20,17 +20,8 @@ DEBUG = env('DJANGO_DEBUG', default='False').lower() == 'true'
 
 USE_POSTGRES_LOCAL = False
 
-# Use channels layer for Django's ASGI interface
-ASGI_APPLICATION = 'memebook.routing.application'
 
-# Channels layer configuration
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
-}
-
-ALLOWED_HOSTS = ['ltb-memebook.herokuapp.com', 'localhost:8000']
+ALLOWED_HOSTS = ['ltb-memebook.herokuapp.com', 'localhost', '127.0.0.1']
 CSRF_TRUSTED_ORIGINS = ["https://ltb-memebook.herokuapp.com"]
 
 # Application definition
@@ -43,7 +34,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'memebook',
     'main',
-    'channels'
+    'channels',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -115,6 +107,15 @@ else:
             ssl_require=True
         )
     }
+
+ASGI_APPLICATION = 'memebook.asgi.application'
+
+# Channels layer configuration
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 
 # AWS Configuration

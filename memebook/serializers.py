@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Profile, Message
+from main.models import Profile, Message
 
 
 class ProfileSerializer(serializers.ModelSerializer):

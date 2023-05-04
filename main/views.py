@@ -9,9 +9,10 @@ from main.models import *
 from lib.memes import create_meme
 from lib.decorators import attach_profile
 from django.db import models
-from django.db.models import Case, When, Value, Q, Subquery, F, CharField
+from django.db.models import Case, When, Value, Q, Subquery, F, CharField, Prefetch, OuterRef, TextField, Count
 from django.db.models.functions import Concat
 from functools import reduce
+from memebook.settings import LOCAL
 from operator import or_
 
 @login_required
@@ -20,6 +21,7 @@ def index(request, profile: Profile):
     context = {
         'logged_in': request.user.is_authenticated,
         'profile_json': json.dumps(profile.dict()),
+        'LOCAL': LOCAL
     }
 
     return render(request, 'index.html', context)
@@ -299,10 +301,22 @@ def friend_search(request, profile: Profile):
     search_input = query_dict.pop('search_input', None)
     search_fields = ['first_name', 'last_name', 'user__username']
     search_filters = []
+
     if search_input:
         terms = [term.strip() for term in search_input.split(' ') if term]
         queries = [models.Q(**{f'{field}__icontains': t}) for t in terms for field in search_fields]
         search_filters.append(reduce(or_, queries))
+
+    # Subquery for the most recent message sent to profile
+    recent_message_text_subquery = Message.objects.filter(
+        Q(sender=OuterRef('pk'), recipient=profile)
+        | Q(sender=profile, recipient=OuterRef('pk'))
+    ).order_by('-created_at').values('text')[:1]
+
+    recent_message_time_subquery = Message.objects.filter(
+        Q(sender=OuterRef('pk'), recipient=profile)
+        | Q(sender=profile, recipient=OuterRef('pk'))
+    ).order_by('-created_at').values('created_at')[:1]
 
     friends = (
         profile.friends
@@ -313,13 +327,23 @@ def friend_search(request, profile: Profile):
             'first_name',
             'last_name'
         )
+        .annotate(
+            recent_message=Subquery(recent_message_text_subquery, output_field=TextField()),
+            recent_message_time=Subquery(recent_message_time_subquery, output_field=TextField()),
+            num_unread=Count(
+                'sent_messages',
+                filter=Q(sent_messages__is_read=False, sent_messages__sender=F('uuid'))
+            )
+        )
     )
 
     return JsonResponse({
         'friends': [friend.dict(
             'uuid',
             'first_name',
-            'last_name'
+            'num_unread',
+            'last_name',
+            'recent_message'
         ) for friend in friends]
     })
 
@@ -335,6 +359,9 @@ def get_messages(request, profile, friend_uuid):
     serialized_messages = []
     for message in messages:
         message.is_user = message.sender == profile
+        if not (message.is_read or message.is_user):
+            message.is_read = True
+            message.save()
         serialized_messages.append(
             message.dict()
         )

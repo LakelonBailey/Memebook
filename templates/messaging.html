@@ -6,19 +6,23 @@
             <div class="column is-one-quarter recipients">
                 <div class="field">
                     <div class="control">
-                        <input type="text" class="input is-small" name="search_input" id="friend-search-input">
+                        <input type="text" class="input is-small" name="search_input" id="friend-search-input" placeholder="&#xF002; Search Chats" style="font-family:Arial, FontAwesome" />
                     </div>
                 </div>
                 <div class="friends-list">
                 </div>
             </div>
             <div class="column messages">
-                <div class="chat-container">
+                <div class="chat-container" style="display: none;">
+                    <a id="back-to-recipients" style="display: none; text-decoration: none;">Back to Chats</a>
+                    <h3 id="recipient-header">
+                        Messaging <span id="recipient-name"></span>
+                    </h3>
                     <div id="message-list" class="message-list">
 
                     </div>
                     <form id="chat-message-form" class="message-form">
-                        <input id="chat-message-input" type="text">
+                        <input id="chat-message-input" type="text" placeholder="New Message">
                         <input id="chat-message-submit" type="button" value="Send">
                     </form>
                 </div>

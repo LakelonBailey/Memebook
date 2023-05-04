@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.db.models import Case, When, Value, Q, Subquery, F, CharField
 from django.db.models.functions import Concat
 from memebook.settings import LOCAL, MEDIA_URL
+from django.utils import timezone
 
 
 def format_slugname(slug_name):
@@ -43,6 +44,8 @@ class Profile(BaseClass):
         return self.full_name()
 
     def full_name(self):
+        if self.user and not (self.first_name and self.last_name):
+            return f"{self.user.first_name} {self.user.last_name}"
         return f"{self.first_name} {self.last_name}"
 
     def get_liked_memes(self):
@@ -65,7 +68,7 @@ class Profile(BaseClass):
             )
             .values_list('total_text', flat=True)
         )
-        return " ".join(list(liked_memes))
+        return list(liked_memes)
 
 
 class Meme(BaseClass):
@@ -115,7 +118,14 @@ class Message(BaseClass):
     recipient = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='received_messages')
     text = models.TextField()
     is_read = models.BooleanField(default=False)
+    read_time = models.DateTimeField(null=True)
 
     def __str__(self):
         return f"{self.sender.full_name()} -> {self.recipient.full_name()}: {self.text}"
+
+    def save(self, *args, **kwargs):
+        if self.is_read and not self.read_time:
+            self.read_time = timezone.localtime()
+
+        super(Message, self).save(*args, **kwargs)
 

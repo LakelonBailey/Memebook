@@ -8,8 +8,7 @@ def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'memebook.settings')
 
     # Import the ASGI application
-    from django.core.asgi import get_asgi_application
-    application = get_asgi_application()
+    from memebook.asgi import application
 
     from django.core.management import execute_from_command_line
     execute_from_command_line(sys.argv)
