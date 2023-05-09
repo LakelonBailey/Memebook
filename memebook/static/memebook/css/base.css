@@ -214,6 +214,7 @@ section[data-section="loader-view"], section[data-section="search"], section[dat
 
 .messaging-columns {
   height: 70vh;
+  min-height: fit-content;
 }
 .friend-list-item {
   height: fit-content;
@@ -229,8 +230,9 @@ section[data-section="loader-view"], section[data-section="search"], section[dat
 }
 
 .friends-list {
-  height: 70vh;
-  overflow-y: scroll;
+  height: 60vh;
+  max-height: 100%;
+  overflow-y: auto;
 }
 .friend-name-cont {
   display: flex;

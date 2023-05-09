@@ -105,7 +105,7 @@ const loadChat = async (friendUUID, friendName) => {
 
             // Show typing element
             if (data.typer_id == window.RECIPIENT_UUID) {
-                $('#message-list').append(typingElement());
+                $('#message-list').append(typingElement);
             }
 
             // Scroll bottom
