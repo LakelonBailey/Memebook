@@ -92,6 +92,8 @@ const loadChat = async (friendUUID, friendName) => {
     const messages = response.data.messages;
     listMessages(messages);
     loadFriends();
+
+    await chatSocket.send()
 }
 
 const scrollBottomMessages = () => {
@@ -122,7 +124,7 @@ const typingElement = isUser => {
             <div class="typing-indicator"><div></div><div></div><div></div></div>
         </div>
     </div>
-    `
+    `;
 }
 
 function getReadReceipt(datetime) {
@@ -252,6 +254,8 @@ $(document).ready(function() {
             $('.recipients').hide();
             $('.messages').show();
         }
+        $('#chat-message-input').val('');
+        $('#chat-message-input').focus();
         scrollBottomMessages();
     })
 
