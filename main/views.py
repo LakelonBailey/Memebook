@@ -473,7 +473,9 @@ def profile_friend_search(request, profile):
 @attach_profile
 def profile_friend_requests(request, profile):
     # Assuming the profile variable is already defined
-    friend_requests_received = FriendRequest.objects.filter(requestee=profile)
+    friend_requests_received = distinct_models(
+        FriendRequest.objects.filter(requestee=profile)
+    )
 
     # To get the requester Profiles
     requester_data = []
