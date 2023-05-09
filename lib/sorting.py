@@ -1,9 +1,5 @@
 import ctypes
 import numpy as np
-from main.models import Meme
-from django.db.models import Case, When, Value, Q, Subquery, F, CharField
-from django.db.models.functions import Concat
-from time import time
 
 
 sort_memes_lib = ctypes.CDLL(
