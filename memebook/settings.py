@@ -2,10 +2,18 @@ import django_heroku
 import environ
 import os
 import dj_database_url
+from pprint import pprint
+
+
+"""
+IGNORE THIS FILE
+This code involves environment establishment and server settings
+This code does not aid much in understanding the app's functionality apart from libraries used
+"""
 
 # Initialise environment variables
 env = environ.Env()
-environ.Env.read_env()
+env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -14,10 +22,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = env('SECRET_KEY')
 
 # Turn off LOCAL and DEBUG before pushing to production
-LOCAL = os.environ.get('DJANGO_LOCAL', 'False').lower() == 'true'
-DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
+LOCAL = env('DJANGO_LOCAL', default='False').lower() == 'true'
+DEBUG = env('DJANGO_DEBUG', default='False').lower() == 'true'
 
-ALLOWED_HOSTS = ['ltb-memebook.herokuapp.com', 'localhost:8000']
+USE_POSTGRES_LOCAL = True
+
+
+ALLOWED_HOSTS = ['ltb-memebook.herokuapp.com', 'localhost', '127.0.0.1']
 CSRF_TRUSTED_ORIGINS = ["https://ltb-memebook.herokuapp.com"]
 
 # Application definition
@@ -29,7 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'memebook',
-    'main'
+    'main',
+    'channels',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -73,11 +86,21 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'memebook.wsgi.application'
 
 
 # Database Configuration
-if LOCAL:
+if LOCAL and USE_POSTGRES_LOCAL:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': env('LOCAL_DB_NAME', default=''),
+            'USER': env('LOCAL_DB_USER', default=''),
+            'PASSWORD': env('LOCAL_DB_PASSWORD', default=''),
+            'HOST': env('LOCAL_DB_HOST', default=''),
+            'PORT': env('LOCAL_DB_PORT', default='')
+        }
+    }
+elif LOCAL:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -91,6 +114,15 @@ else:
             ssl_require=True
         )
     }
+
+ASGI_APPLICATION = 'memebook.asgi.application'
+
+# Channels layer configuration
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 
 # AWS Configuration
@@ -152,6 +184,5 @@ LOGIN_URL = '/login/'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 django_heroku.settings(locals())
 

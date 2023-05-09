@@ -9,6 +9,9 @@ Date - Time - Description
 04/17/2023 - 6 hours - Added basic "pagination" to feed and profile, developed function to create fake data in order to improve testing capability
 04/18/2023 - 2 hours - Added basic functionality of friend searching
 04/20/2023 - 4 hours - Created reusable functionality for insertion of friendship status button, adjusted assorted errors involved in rendering profile/search/etc.
+04/25/2023 - 5 hours - Created messaging app
+05/01/2023 - 2 hours - Added typing notification to messaging and began implementing read receipts
+05/03/2023 - 4 hours - More work on read receipts, implemented Cooper's relevancy algorithm into "For You" and "Friends" sorting
+05/09/2023 - 8 hours - Completed read receipts, met with Cooper to discuss final plans, commented out files except css and html files
 
-
-TOTAL ON 04/20/2023 - 37 hours
+TOTAL ON 05/03/2023 - 56 hours

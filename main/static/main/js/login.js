@@ -1,13 +1,18 @@
-
+// Add error text to input element
 const addErrorText = (field, text='Required Field!') => {
     field.addClass('is-danger').closest('.field').find('.help').removeClass('is-invisible').text(text);
 }
 
+// Attempt login
 const tryLogin = async () => {
+    // Gather form data
     const formData = getFormData('login-form');
-    const response = await sendPost('/login/', formData);
-    const result = response.data;
 
+    // Post login info
+    const response = await sendPost('/login/', formData);
+
+    // Handle different results
+    const result = response.data;
     if (!result.success) {
         await swalNotif.fire({
             icon: 'error',
@@ -17,6 +22,7 @@ const tryLogin = async () => {
         return;
     }
 
+    // Redirect to next page
     localStorage.setItem('section', 'feed');
     const urlParams = new URLSearchParams(window.location.search);
     const next = urlParams.get('next');
@@ -29,6 +35,8 @@ const tryLogin = async () => {
 }
 
 $(document).ready(function() {
+
+    // Wait for submission
     $('#login-form').on('submit', function(event) {
         event.preventDefault();
         tryLogin();

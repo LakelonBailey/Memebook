@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 import os
-import sys
 from main.models import *
 
 # Django Imports
@@ -16,18 +15,17 @@ import shutil
 import boto3
 
 class Command(BaseCommand):
-
-    # Execute
     def handle(self, *args, **options):
         if LOCAL:
             # Remove the local media folder and its contents
             if os.path.exists('mediafiles/'):
                 shutil.rmtree('mediafiles/')
 
+            # Recreate folder
             os.makedirs('mediafiles/')
 
         else:
-            # Initialize a boto3 session with your AWS credentials
+            # Initialize a boto3 session with AWS credentials
             session = boto3.Session(
                 aws_access_key_id=AWS_ACCESS_KEY_ID,
                 aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
@@ -41,5 +39,7 @@ class Command(BaseCommand):
             media_folder_prefix = 'media/'
 
             print('Deleting AWS S3 Bucket Items')
+
+            # Delete all objects in bucket
             for obj in bucket.objects.filter(Prefix=media_folder_prefix):
                 obj.delete()

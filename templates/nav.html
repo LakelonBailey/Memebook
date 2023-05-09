@@ -23,6 +23,9 @@
         <a class="navbar-item section-load" data-section="profile">
           Profile
         </a>
+        <a class="navbar-item section-load" data-section="messaging">
+          Messaging
+        </a>
         <a class="navbar-item section-load" data-section="search">
           <i class="fa-solid fa-magnifying-glass"></i>
         </a>
@@ -31,16 +34,7 @@
       <div class="navbar-end">
         <div class="navbar-item">
           <div class="buttons">
-            {% if logged_in %}
-              <a class="button is-light" href="/logout/">Log Out</a>
-            {% else %}
-              <a class="button is-primary" href="/signup/">
-                <strong>Sign up</strong>
-              </a>
-              <a class="button is-light" href="/login/">
-                Log in
-              </a>
-            {% endif %}
+            <a class="button is-light" href="/logout/">Log Out</a>
           </div>
         </div>
       </div>

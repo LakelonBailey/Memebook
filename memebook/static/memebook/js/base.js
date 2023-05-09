@@ -1,3 +1,11 @@
+/*
+IGNORE THIS FILE
+
+This code was copy/pasted to this repository from one of Lakelon Bailey's work applications.
+This code was NOT developed for this project. It is simply a library of highly-generalized helper functions
+
+*/
+
 function camelToUnderscore(str) {
     return str.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase();
 }
@@ -83,11 +91,14 @@ const swalNotif = Swal.mixin({
 })
 
 
-const caps = word => {
-  return word.charAt(0).toUpperCase() + word.slice(1)
+/*
+Creates an object from a form element.
+
+Object structure:
+{
+  <element name property>: <element value>
 }
-
-
+*/
 const getFormData = formId => {
   const formData = {};
   formId = formId.replace('#', '');
@@ -144,6 +155,12 @@ const getFormData = formId => {
 }
 
 
+/*
+Does the opposite of getFormData:
+  - Takes an object of key value pairs and
+    fills form input values by matching keys
+    to input element "name" properties
+*/
 const fillForm = (formId, data) => {
   formId = formId.replace('#', '');
   $(`#${formId} :input`).each((index, element) => {
@@ -176,7 +193,8 @@ const fillForm = (formId, data) => {
   })
 }
 
-
+// Clears a form of all input values
+// as if it had not been touched by the user
 const clearForm = (formId) => {
   const id = formId.replace('#', '');
   $(`#${id} :input`).each((index, element) => {
@@ -198,19 +216,21 @@ const clearForm = (formId) => {
   })
 }
 
-
+// Use a regular expression to check if a given string
+// is a properly formatted email
 const isEmail = email => {
   return email.toLowerCase().match(
       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   )
 }
 
-
+// Retrieve CSRF token value from template
 const getCSRF = () => {
   const csrfToken = document.querySelector('[name="csrfmiddlewaretoken"]').value;
   return csrfToken
 }
 
+// Display a Toastify toast indicating an error
 const errorToast = errorMessage => {
   Toastify({
     text: errorMessage || "We experienced an error, please try again.",
@@ -227,7 +247,10 @@ const errorToast = errorMessage => {
   }).showToast();
 }
 
+// Send a POST request
 const sendPost = async (url, data, errorMessage=false) => {
+
+  // Send request
   const response = await fetch(url, {
     method: 'POST',
     body: JSON.stringify(data),
@@ -237,7 +260,10 @@ const sendPost = async (url, data, errorMessage=false) => {
       'Accept': 'application/json'
     }
   })
+
   if (response.ok) {
+
+    // Attach json response as a "data" property if necessary
     const contentType = response.headers.get("content-type");
     if (contentType && contentType.includes('application/json')) {
       response.data = await response.json();
@@ -248,12 +274,14 @@ const sendPost = async (url, data, errorMessage=false) => {
     }
     return response;
   } else {
+
+    // Display error toast on bad request
     errorToast(errorMessage);
   }
   return response
 }
 
-
+// Send a GET request
 const sendGet = async (url, errorMessage=false) => {
   const res = await fetch(url, {
     method: 'GET',
@@ -263,6 +291,8 @@ const sendGet = async (url, errorMessage=false) => {
         'Accept': 'application/json'
     },
   })
+
+  // Attach json response as a "data" property if necessary
   if (res.ok) {
     const contentType = res.headers.get("content-type");
 
@@ -273,13 +303,16 @@ const sendGet = async (url, errorMessage=false) => {
     return res
   }
   else {
+
+    // Display error toast on bad request
     errorToast(errorMessage);
     return res;
   }
 }
 
-
+// Send a DELETE request
 const sendDelete = async (url, data=false) => {
+  // Develop params
   const params = {
     method: 'DELETE',
     headers: {
@@ -288,20 +321,24 @@ const sendDelete = async (url, data=false) => {
       'Accept': 'application/json'
     },
   }
-
   if (data) {
     params.body = JSON.stringify(data);
   }
+
+  // Send request
   const res = await fetch(url, params);
   if (res.ok) {
-    const contentType = res.headers.get("content-type");
 
+    // Attach json response as a "data" property if necessary
+    const contentType = res.headers.get("content-type");
     if (contentType && contentType.includes('application/json')) {
       const data = await res.json()
       res.data = data;
     }
   }
   else {
+
+    // Display error toast on bad request
     errorToast();
   }
 
@@ -321,35 +358,6 @@ const savedToast = (milliseconds=3000) => {
 
     }
   }).showToast();
-}
-
-
-const sendPut = async (url, data=false) => {
-  const params = {
-    method: 'PUT',
-    headers: {
-      'X-CSRFToken': getCSRF(),
-      'mode': 'same-origin',
-      'Accept': 'application/json'
-    },
-  }
-  if (data) {
-    params.body = JSON.stringify(data);
-  }
-  const res = await fetch(url, params);
-  if (res.ok) {
-    const contentType = res.headers.get("content-type");
-
-    if (contentType && contentType.includes('application/json')) {
-      const data = await res.json()
-      res.data = data;
-    }
-  }
-  else {
-    errorToast();
-  }
-
-  return res;
 }
 
 
@@ -376,12 +384,6 @@ $(document).ready(function() {
     $el.classList.remove('is-active');
   }
 
-  function closeAllModals() {
-    (document.querySelectorAll('.modal') || []).forEach(($modal) => {
-      closeModal($modal);
-    });
-  }
-
   // Add a click event on buttons to open a specific modal
   (document.querySelectorAll('.js-modal-trigger') || []).forEach(($trigger) => {
     const modal = $trigger.dataset.target;
@@ -399,15 +401,6 @@ $(document).ready(function() {
     $close.addEventListener('click', () => {
       closeModal($target);
     });
-  });
-
-  // Add a keyboard event to close all modals
-  document.addEventListener('keydown', (event) => {
-    const e = event || window.event;
-
-    if (e.keyCode === 27) { // Escape key
-      closeAllModals();
-    }
   });
 });
 })(jQuery)

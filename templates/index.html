@@ -8,6 +8,10 @@
 <header>
     {% include 'nav.html' %}
 </header>
+<script>
+    window.PROFILE = JSON.parse('{{ profile_json }}'.split('&quot;').join('"'));
+    window.WEBSOCKET_PROTOCOL = '{{ LOCAL }}' == 'True' ? 'ws://' : 'wss://';
+</script>
 <main class="main">
     <section class="section">
     <div class="container">
@@ -20,6 +24,7 @@
                     {% include 'view-meme.html' %}
                     {% include 'feed.html' %}
                     {% include 'loader-view.html' %}
+                    {% include 'messaging.html' %}
                     {% include 'search.html' %}
                 </div>
             </div>
@@ -36,5 +41,6 @@
 <script src="{% static 'main/js/search.js' %}"></script>
 <script src="{% static 'main/js/feed.js' %}"></script>
 <script src="{% static 'main/js/view-meme.js' %}"></script>
+<script src="{% static 'main/js/messaging.js' %}"></script>
 <script src="{% static 'main/js/index.js' %}"></script>
 {% endblock %}

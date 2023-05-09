@@ -1,91 +1,117 @@
 <section class="tab" data-section="profile">
-    <div class="profile-header">
-        <div class="profile-header-left">
-            <h2 class="sec-title"><span id="profile-name"></span> Profile</h2>
-            <div class="profile-info">
-                <div class="profile-info-item">
-                    <p class="profile-info-number" id="friend-count">12</p>
-                    <p class="profile-info-name">Friends</p>
-                </div>
-                <div class="profile-info-item">
-                    <p class="profile-info-number" id="meme-count">30</p>
-                    <p class="profile-info-name">Memes</p>
-                </div>
-                <div class="profile-info-item">
-                    <p class="profile-info-number" id="like-count">30</p>
-                    <p class="profile-info-name">Likes</p>
-                </div>
-            </div>
+  <div class="profile-header">
+    <div class="profile-header-left">
+      <h2 class="sec-title"><span id="profile-name"></span> Profile</h2>
+      <div class="profile-info">
+        <div class="profile-info-item">
+          <p class="profile-info-number" id="friend-count">12</p>
+          <p class="profile-info-name">Friends</p>
         </div>
-        <div class="profile-header-right">
-            <button id="settings-modal-trigger" class="button js-modal-trigger" data-target="profile-settings-modal">
-                <span class="icon is-small">
-                  <i class="fas fa-gear"></i>
-                </span>
-              </button>
+        <div class="profile-info-item">
+          <p class="profile-info-number" id="meme-count">30</p>
+          <p class="profile-info-name">Memes</p>
         </div>
-    </div>
-    <div class="buttons friendship-status-buttons">
-
-    </div>
-    <div class="tabs is-centered is-boxed">
-        <ul>
-          <li class="is-active">
-            <a class="section-tab" data-tab="profile-memes">
-              <span class="icon is-small"><i class="fas fa-user" aria-hidden="true"></i></span>
-              <span>Memes</span>
-            </a>
-          </li>
-          <li>
-            <a class="section-tab" data-tab="liked">
-              <span class="icon is-small"><i class="fas fa-heart" aria-hidden="true"></i></span>
-              <span>Liked</span>
-            </a>
-          </li>
-        </ul>
+        <div class="profile-info-item">
+          <p class="profile-info-number" id="like-count">30</p>
+          <p class="profile-info-name">Likes</p>
+        </div>
       </div>
-    <div class="section-content">
-        <div class="meme-list" id="profile-memes">
-        </div>
-        <div style="width: 100%; display: flex; justify-content: center; margin-top: 24px;">
-            <button class="button is-success is-large view-more-button" data-section="profile">View More</button>
-        </div>
     </div>
+    <div class="profile-header-right">
+      <button id="settings-modal-trigger" class="button js-modal-trigger" data-target="profile-settings-modal">
+        <span class="icon is-small">
+          <i class="fas fa-gear"></i>
+        </span>
+      </button>
+      <button id="friends-modal-trigger" class="button js-modal-trigger" data-target="profile-friends-modal">
+        <span class="icon is-small">
+          <i class="fas fa-user-friends"></i>
+        </span>
+      </button>
+    </div>
+  </div>
+  <div class="buttons friendship-status-buttons">
+
+  </div>
+  <div class="tabs is-centered is-boxed">
+    <ul>
+      <li class="is-active">
+        <a class="section-tab" data-tab="profile-memes">
+          <span class="icon is-small"><i class="fas fa-user" aria-hidden="true"></i></span>
+          <span>Memes</span>
+        </a>
+      </li>
+      <li>
+        <a class="section-tab" data-tab="liked">
+          <span class="icon is-small"><i class="fas fa-heart" aria-hidden="true"></i></span>
+          <span>Liked</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div class="section-content">
+    <div class="meme-list" id="profile-memes">
+    </div>
+    <div style="width: 100%; display: flex; justify-content: center; margin-top: 24px;">
+      <button class="button is-success is-large view-more-button" data-section="profile">View More</button>
+    </div>
+  </div>
 </section>
 
 <div class="modal" id="profile-settings-modal">
-    <div class="modal-background"></div>
-    <div class="modal-card">
-      <header class="modal-card-head">
-        <p class="modal-card-title">Profile Settings</p>
-        <button class="delete" aria-label="close"></button>
-      </header>
-      <section class="modal-card-body">
-        <form id="profile-settings-form">
-            <div class="field">
-                <label class="label">Liked Memes Privacy</label>
-                <div class="control">
-                    <div class="select">
-                        <select name="liked_memes_privacy">
-                            <option value="Private">Private</option>
-                            <option value="Friends Only">Friends Only</option>
-                            <option value="Public">Public</option>
-                        </select>
-                    </div>
-                </div>
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Profile Settings</p>
+      <button class="delete" aria-label="close"></button>
+    </header>
+    <section class="modal-card-body">
+      <form id="profile-settings-form">
+        <div class="field">
+          <label class="label">Liked Memes Privacy</label>
+          <div class="control">
+            <div class="select">
+              <select name="liked_memes_privacy">
+                <option value="Private">Private</option>
+                <option value="Friends Only">Friends Only</option>
+                <option value="Public">Public</option>
+              </select>
             </div>
-            <div class="field">
-                <label class="label">Account Privacy</label>
-                <div class="control">
-                    <div class="select">
-                        <select name="is_private">
-                            <option value="true">Private</option>
-                            <option value="false">Public</option>
-                        </select>
-                    </div>
-                </div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Account Privacy</label>
+          <div class="control">
+            <div class="select">
+              <select name="is_private">
+                <option value="true">Private</option>
+                <option value="false">Public</option>
+              </select>
             </div>
-        </form>
-      </section>
-    </div>
+          </div>
+        </div>
+      </form>
+    </section>
   </div>
+</div>
+
+<div class="modal" id="profile-friends-modal">
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Friends</p>
+      <button class="delete" aria-label="close"></button>
+    </header>
+    <section class="modal-card-body">
+      <div class="field">
+        <div class="control">
+          <input type="text" class="input is-small" name="search_input" id="profile-friend-search-input"
+            placeholder="&#xF002; Search Friends" style="font-family:Arial, FontAwesome" />
+        </div>
+      </div>
+      <div id='profile-friend-list'>
+
+      </div>
+    </section>
+  </div>
+</div>

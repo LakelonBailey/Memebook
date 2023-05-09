@@ -1,7 +1,10 @@
 from django.db import models
 from lib.models import BaseClass
 from django.contrib.auth.models import User
-import uuid
+from django.db.models import Case, When, Value, Q, Subquery, F, CharField
+from django.db.models.functions import Concat
+from memebook.settings import LOCAL, MEDIA_URL
+from django.utils import timezone
 
 
 def format_slugname(slug_name):
@@ -41,7 +44,33 @@ class Profile(BaseClass):
         return self.full_name()
 
     def full_name(self):
+        if self.user and not (self.first_name and self.last_name):
+            return f"{self.user.first_name} {self.user.last_name}"
         return f"{self.first_name} {self.last_name}"
+
+    # Get all memes user has liked
+    def get_liked_memes(self):
+        return Meme.objects.filter(
+            uuid__in=Subquery(
+                Like.objects.filter(
+                    profile_id=self.uuid
+                ).values_list('meme__uuid', flat=True)
+            ),
+            bottom_text__isnull=False,
+            top_text__isnull=False,
+        )
+
+    # Get only a list of concatenated text from liked memes
+    def get_liked_memes_text(self):
+        liked_memes = self.get_liked_memes()
+        liked_memes = (
+            liked_memes
+            .annotate(
+                total_text=Concat(F('top_text'), Value(' '), F('bottom_text'), output_field=CharField())
+            )
+            .values_list('total_text', flat=True)
+        )
+        return list(liked_memes)
 
 
 class Meme(BaseClass):
@@ -53,6 +82,7 @@ class Meme(BaseClass):
 
     def __str__(self):
         return f"{str(self.profile)} - {str(self.template)}"
+
 
 class Comment(BaseClass):
     profile = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True, blank=True, related_name='comments')
@@ -77,3 +107,21 @@ class FriendRequest(BaseClass):
         self.requester.friends.add(self.requestee)
         self.requester.save()
         self.delete()
+
+class Message(BaseClass):
+    sender = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='sent_messages')
+    recipient = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='received_messages')
+    text = models.TextField()
+    is_read = models.BooleanField(default=False)
+    read_time = models.DateTimeField(null=True)
+
+    def __str__(self):
+        return f"{self.sender.full_name()} -> {self.recipient.full_name()}: {self.text}"
+
+    # Override save method to track read time
+    def save(self, *args, **kwargs):
+        if self.is_read and not self.read_time:
+            self.read_time = timezone.localtime()
+
+        super(Message, self).save(*args, **kwargs)
+
