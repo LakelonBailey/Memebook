@@ -15,4 +15,4 @@ Date - Time - Description
 05/09/2023 - 8 hours - Completed read receipts, met with Cooper to discuss final plans, commented out files except css and html files
 05/10/2023 - 2 hours - Developed user manual and added ability to view friend requests
 
-TOTAL ON 05/03/2023 - 58 hours
+TOTAL ON 05/10/2023 - 58 hours
