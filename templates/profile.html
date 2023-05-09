@@ -103,14 +103,33 @@
       <button class="delete" aria-label="close"></button>
     </header>
     <section class="modal-card-body">
-      <div class="field">
-        <div class="control">
-          <input type="text" class="input is-small" name="search_input" id="profile-friend-search-input"
-            placeholder="&#xF002; Search Friends" style="font-family:Arial, FontAwesome" />
+      <div class="tabs is-boxed is-centered">
+        <ul>
+          <li class="is-active">
+            <a class="profile-friend-tab" data-target="profile-friends">
+              <span>My Friends</span>
+            </a>
+          </li>
+          <li>
+            <a class="profile-friend-tab" data-target="profile-requests">
+              <span>Friend Requests</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div class="profile-friend-tab-cont" id="profile-friends">
+        <div class="field">
+          <div class="control">
+            <input type="text" class="input is-small" name="search_input" id="profile-friend-search-input"
+              placeholder="&#xF002; Search Friends" style="font-family:Arial, FontAwesome" />
+          </div>
+        </div>
+        <div id='profile-friend-list'>
         </div>
       </div>
-      <div id='profile-friend-list'>
-
+      <div class="profile-friend-tab-cont" id="profile-requests">
+        <div id='profile-request-list'>
+        </div>
       </div>
     </section>
   </div>

@@ -23,6 +23,7 @@ urlpatterns = [
     path('friendship-status/<str:profile_uuid>/', get_friendship_status, name='get_friendship_status'),
     path('friends/', friend_search, name='friend_search'),
     path('messages/<str:friend_uuid>/', get_messages, name='get_messages'),
-    path('profile-friends', profile_friend_search, name='profile_friend_search'),
+    path('profile-friends/', profile_friend_search, name='profile_friend_search'),
+    path('friend-requests/', profile_friend_requests, name='profile_friend_requests'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

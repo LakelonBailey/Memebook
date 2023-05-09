@@ -467,3 +467,24 @@ def profile_friend_search(request, profile):
 
     # Return data
     return JsonResponse(response_data)
+
+
+@require_GET
+@attach_profile
+def profile_friend_requests(request, profile):
+    # Assuming the profile variable is already defined
+    friend_requests_received = FriendRequest.objects.filter(requestee=profile)
+
+    # To get the requester Profiles
+    requester_data = []
+    for friend_request in friend_requests_received:
+        requester = friend_request.requester
+        requester.requested_user_friendship = True
+
+        requester_data.append(requester.dict())
+
+    return JsonResponse({
+        'requesters': requester_data
+    })
+
+

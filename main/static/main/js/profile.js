@@ -145,14 +145,43 @@ const loadProfileMemes = async (memes = null) => {
 
 const loadProfileFriends = async () => {
     const searchInput = $('#profile-friend-search-input').val();
-    const url = `/profile-friends?search_input=${searchInput}`;
+    const url = `/profile-friends/?search_input=${searchInput}`;
     const response = await sendGet(url);
     const friends = response.data.friends;
     const profileEls = await generateFriendList(friends);
     $('#profile-friend-list').html(profileEls);
 }
 
+
+const loadFriendRequests = async () => {
+    const url = `/friend-requests/`;
+    const response = await sendGet(url);
+    const requesters = response.data.requesters;
+    const requesterEls = await generateFriendList(requesters);
+    $('#profile-request-list').html(requesterEls);
+}
+
+const loadCurrentTab = async () => {
+    const target = window.CURRENT_PROFILE_TAB;
+    const link = $(`.profile-friend-tab[data-target=${target}]`);
+
+    $('.profile-friend-tab').closest('li').removeClass('is-active');
+    link.closest('li').addClass('is-active');
+
+    $('.profile-friend-tab-cont').hide();
+
+    if (target == 'profile-friends') {
+        await loadProfileFriends();
+    }
+    else {
+        await loadFriendRequests();
+    }
+    $(`#${target}`).show();
+}
+
 $(document).ready(function () {
+    window.CURRENT_PROFILE_TAB = 'profile-friends';
+
     $('#profile-settings-form :input').on('change', async function () {
         const formData = getFormData('profile-settings-form');
         const response = await sendPost('/update-profile/', formData);
@@ -162,10 +191,22 @@ $(document).ready(function () {
     });
 
     $('#friends-modal-trigger').on('click', async function () {
-        await loadProfileFriends();
+        loadCurrentTab();
     });
 
     $('#profile-friend-search-input').on('input', async function () {
         await loadProfileFriends();
     });
+
+    $('.profile-friend-tab').on('click', async function() {
+        const link = $(this);
+        const target = link.data('target');
+        if (target == window.CURRENT_PROFILE_TAB) {
+            return;
+        }
+
+        window.CURRENT_PROFILE_TAB = target;
+
+        loadCurrentTab();
+    })
 })
