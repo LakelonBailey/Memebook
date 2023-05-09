@@ -101,7 +101,9 @@ class FriendRequest(BaseClass):
     requestee = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True, blank=True, related_name='received_requests')
 
     def __str__(self):
-        return f"{self.requester.full_name()} requested {self.requestee.full_name()}"
+        if (self.requester and self.requestee):
+            return f"{self.requester.full_name()} requested {self.requestee.full_name()}"
+        return str(self.uuid)
 
     def fullfill(self):
         self.requester.friends.add(self.requestee)
