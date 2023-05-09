@@ -13,6 +13,21 @@
 - Meme top and bottom text stretches outside the bounds of template image when viewing meme preview on mobile screen sizes
 - When viewing friends list modal from profile, if the user clicks on one of their friends' name, it will redirect to that profile but will not close the modal.
 
+## How to run locally
+- This package uses pip as a package manager. To run locally, follow these steps:
+    - Clone the repo and get into the same directory as "manage.py".
+    - Either in this directory or any other, create a python virtual environment (the command "python -m venv venv" should work).
+    - Run "source venv/bin/activate".
+    - Once your virtual environment is activated, run "pip install -r requirements.txt".
+    - HIGHLY IMPORTANT: In the inner memebook directory (the one with settings.py), add a .env file with the following lines:
+        - SECRET_KEY={Any random string}
+        - DJANGO_LOCAL='TRUE'
+        - DJANGO_DEBUG='TRUE'
+    - In memebook/settings.py, change "USE_POSTGRES_LOCAL" to False. Otherwise, you will face problems when it attempts to connect to a local postgres server.
+    - OPTIONAL: To create seed data, run "python manage.py seeddata". If you want to delete previous data first, add the "--delete-old" option to that command
+    - Once you successfully install those packages, run "python manage.py runserver" to run the local server.
+    - Got to "localhost:8000" in your browser to access the application
+
 ## Page Descriptions
 - ### Feed
     - The feed page allows users to view "For You" and "Friends". Both of these algorithms use the relevancy sorting algorithm. "For You" picks from the pool of public memes. "Friends" picks from the pool of memes created by the user's friends.
@@ -46,6 +61,7 @@
     - Any .cpp file
     - main/class_views.py
     - memebook/consumers.py
+    - Any file in memebook/management/commands
     - Any file in the lib/ folder
     - Any JavaScript file
     - CSS and HTML files are of course relevant to the functionality of the website, but essentially irrelevant to any content discussed in this course. Thus, they can be ignored.
