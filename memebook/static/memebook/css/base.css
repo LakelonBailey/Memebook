@@ -6,6 +6,7 @@ section.tab.active {
 }
 section.tab.box {
   margin-top: 24px;
+  max-width: 90vw;
 }
 .navbar {
   box-shadow: 0 0 2px rgba(0, 0, 0, .5);
@@ -17,7 +18,8 @@ section.tab.box {
   margin: 8px 0;
 }
 .default-template-cont {
-    overflow-x: scroll;
+    overflow-x: auto;
+    width: inherit;
 }
 .default-template-img-cont {
     display: flex;
@@ -61,7 +63,6 @@ section.tab.box {
   border-top-left-radius: 5px;
   width: 100%;
   text-align: center;
-  z-index: 900
 }
 
 .meme-container {
@@ -155,7 +156,7 @@ section.tab.box {
     border: 5px solid grey;
     border-radius: 10px;
 }
-section[data-section="loader-view"], section[data-section="search"] {
+section[data-section="loader-view"], section[data-section="search"], section[data-section='messaging'] {
     height: 80vh;
 }
 
@@ -178,7 +179,8 @@ section[data-section="loader-view"], section[data-section="search"] {
   margin-right: 8px;
 }
 .search-list-item {
-  height: 4vh;
+  min-height: 4vh;
+  height: fit-content;
   padding: 8px;
   border-top: 1px solid lightgray;
   display: flex;
@@ -209,6 +211,10 @@ section[data-section="loader-view"], section[data-section="search"] {
 .meme-info-icons p {
   margin: 0 8px;
 }
+
+.messaging-columns {
+  height: 70vh;
+}
 .friend-list-item {
   height: fit-content;
   padding: 12px;
@@ -223,11 +229,10 @@ section[data-section="loader-view"], section[data-section="search"] {
 }
 
 .friends-list {
-  height: fit-content;
-  max-height: 90vh;
-  overflow-y: auto;
+  height: 70vh;
+  overflow-y: scroll;
 }
-.friend-name {
+.friend-name-cont {
   display: flex;
   width: 100%;
 }
@@ -245,7 +250,7 @@ section[data-section="loader-view"], section[data-section="search"] {
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 80vh;
+  height: 100%;
 }
 
 .messages {
@@ -420,7 +425,6 @@ section[data-section="loader-view"], section[data-section="search"] {
   justify-content: center;
   align-items: center;
   height: 18px;
-  width: fit-content;
   border-radius: 10px;
   padding: 4px 6px;
   font-size: 12px;
@@ -430,13 +434,14 @@ section[data-section="loader-view"], section[data-section="search"] {
   background-color: rgb(5, 63, 255);
 }
 
+#profile-friends-modal .modal-card {
+  height: 60vh;
+}
 
 
-
-
-
-
-
+/*
+Loader Element
+*/
 .lds-roller {
   display: inline-block;
   position: relative;

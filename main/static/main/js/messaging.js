@@ -1,18 +1,32 @@
+// Initialize changing variables
 let chatSocket;
 let isTyping = false;
 let isMobileFormat;
+
+// Initialize constant variables
+const typingElement = `
+    <div class="message-list-item typing-cont friend-message">
+        <div class="notification">
+            <div class="typing-indicator"><div></div><div></div><div></div></div>
+        </div>
+    </div>
+`;
+
+// Load messaging
 const loadMessaging = async () => {
     await loadFriends();
 }
 
-
+// Determine if screen is media screen with
 const isMedia = () => {
     return window.innerWidth <= 786;
 }
 
-
+// List friends as clickable chat options
 const listFriends = friends => {
     return friends.map(friend => {
+
+        // Preview recent message
         let recentMessage = friend.recent_message;
         if (recentMessage) {
             recentMessage = recentMessage.slice(0, 20);
@@ -24,23 +38,27 @@ const listFriends = friends => {
             recentMessage = 'No Messages Yet.'
         }
 
+        // Create element
         return `
         <div class="friend-list-item" data-friend_uuid="${friend.uuid}">
-            <p class="friend-name">${friend.first_name} ${friend.last_name} ${friend.num_unread ? `<span class="notif-count">${friend.num_unread} Unread</span>` : ''}</p>
+            <p class="friend-name-cont"><span class="friend-name">${friend.first_name} ${friend.last_name}</span> ${friend.num_unread ? `<span class="notif-count">${friend.num_unread}</span>` : ''}</p>
             <p class="friend-recent-message">${recentMessage}</p>
         </div>
         `;
     }).join('');
 }
 
-
+// Load chat with friend
 const loadChat = async (friendUUID, friendName) => {
+
+    // Close current chat socket
     if (chatSocket != undefined && chatSocket.readyState != undefined) {
         if (chatSocket.readyState == WebSocket.OPEN) {
             chatSocket.close();
         }
     }
 
+    // Set friend name
     $('#recipient-name').text(friendName);
 
     // Initialize the WebSocket connection
@@ -49,58 +67,99 @@ const loadChat = async (friendUUID, friendName) => {
         '/ws/messages/' + window.PROFILE.uuid + '/' + friendUUID + '/'
     );
 
-
-
-    // Add event listeners for the WebSocket
+    // Read messages when chat socket opens
     chatSocket.onopen = (event) => {
-        return;
+        readMessages();
     };
 
+    // Handle incoming actions
     chatSocket.onmessage = (event) => {
+
+        // Gather data
         const {type, ...data} = JSON.parse(event.data);
+
+        // Handle new chat message
         if (type == 'chat_message') {
             const messageData = data.message;
             messageData.is_user = messageData.recipient.uuid == window.RECIPIENT_UUID;
+
+            // Add message to list
             const messagesContainer = $('#message-list');
             messagesContainer.append(messageListItem(messageData));
+
+            // Scroll bottom and reload friends
             scrollBottomMessages();
-        }
-        else if (type == 'start_typing') {
-            $('.typing-cont').remove();
-            if (data.typer_id == window.RECIPIENT_UUID) {
-                $('#message-list').append(typingElement(false));
+            loadFriends();
+
+            // If user recieves message, read it
+            if (!messageData.is_user) {
+                readMessages();
             }
-            scrollBottomMessages();
         }
-        else if (type == 'stop_typing') {
+
+        // Handle start typing
+        else if (type == 'start_typing') {
+
+            // Remove existing typing elements
             $('.typing-cont').remove();
+
+            // Show typing element
+            if (data.typer_id == window.RECIPIENT_UUID) {
+                $('#message-list').append(typingElement());
+            }
+
+            // Scroll bottom
             scrollBottomMessages();
+        }
+
+        // Handle stop typing
+        else if (type == 'stop_typing') {
+
+            // Remove typing elements
+            $('.typing-cont').remove();
+
+            // Scroll bottom
+            scrollBottomMessages();
+        }
+
+        // Handle read messages
+        else if (type == 'read_messages' && data.profile_id == window.RECIPIENT_UUID) {
+
+            // List messages with updated read receipts
+            const messages = data.messages.map(message => {
+                message.is_user = message.sender == window.PROFILE.uuid
+                return message;
+            });
+            listMessages(messages);
         }
     };
 
-    chatSocket.onclose = (event) => {
-        // console.log('WebSocket connection closed:', event);
-    };
-
-    chatSocket.onerror = (event) => {
-        // console.log('WebSocket error:', event);
-    };
-
+    // Set recipient id
     window.RECIPIENT_UUID = friendUUID;
 
+    // Display messages
     const response = await sendGet(`/messages/${friendUUID}/`);
     const messages = response.data.messages;
     listMessages(messages);
-    loadFriends();
-
-    await chatSocket.send()
 }
 
+
+// Send websocket message to read all messages
+const readMessages = () => {
+    chatSocket.send(JSON.stringify({
+        action: 'read_messages',
+        profile_id: window.PROFILE.uuid,
+        recipient_id: window.RECIPIENT_UUID
+    }));
+}
+
+// Scroll to the bottom of messages container
 const scrollBottomMessages = () => {
     const messagesContainer = $('#message-list');
     messagesContainer.scrollTop(messagesContainer.prop('scrollHeight'));
 }
 
+// List messages
 const listMessages = messages => {
     const messagesContainer = $('#message-list');
     const numUserMessages = messages.filter(message => message.is_user).length;
@@ -117,16 +176,8 @@ const listMessages = messages => {
     $('.chat-container').show();
 }
 
-const typingElement = isUser => {
-    return `
-    <div class="message-list-item typing-cont ${isUser ? 'user-message' : 'friend-message'}">
-        <div class="notification">
-            <div class="typing-indicator"><div></div><div></div><div></div></div>
-        </div>
-    </div>
-    `;
-}
 
+// Get formatted read receipt
 function getReadReceipt(datetime) {
     const dateObj = new Date(datetime);
     const now = new Date();
@@ -138,18 +189,27 @@ function getReadReceipt(datetime) {
 
     const timeDiff = now.getTime() - dateObj.getTime();
 
+    // Show time
     if (timeDiff < millisecondsPerDay) {
       return timeString;
-    } else if (timeDiff < millisecondsPerWeek) {
+    }
+
+    // Show weekday
+    else if (timeDiff < millisecondsPerWeek) {
       return weekdayString;
-    } else {
+    }
+
+    // Show date
+    else {
       return dateString;
     }
   }
 
 
-
+// Create message list item
 const messageListItem = (message, isLastUserMessage) => {
+
+    // Display read receipt if it's the most recent user message and it's read
     return `
     <div class="message-list-item ${message.is_user ? 'user-message' : 'friend-message'} ${isLastUserMessage ? 'last-user-message' : ''}">
         <div class="notification">
@@ -160,6 +220,7 @@ const messageListItem = (message, isLastUserMessage) => {
     `
 }
 
+// Send websocket message to stop typing indicator
 const stopTyping = () => {
     chatSocket.send(JSON.stringify({
         action: 'stop_typing',
@@ -168,6 +229,7 @@ const stopTyping = () => {
     isTyping = false;
 }
 
+// Send websocket message to start typing indicator
 const startTyping = () => {
     chatSocket.send(JSON.stringify({
         action: 'start_typing',
@@ -176,6 +238,7 @@ const startTyping = () => {
     isTyping = true;
 }
 
+// Track typing state
 const handleTyping = (text) => {
     if (!text && isTyping) {
         stopTyping();
@@ -185,15 +248,19 @@ const handleTyping = (text) => {
     }
 }
 
-
+// Send message
 const sendMessage = messageText => {
+
+    // Ignore empty messages
     if (!(messageText && window.RECIPIENT_UUID)) {
         return;
     }
 
+    // Stop typing and clear chat message input
     stopTyping();
     $('#chat-message-input').val('');
 
+    // Send websocket message
     chatSocket.send(JSON.stringify({
         action: 'message',
         message: messageText,
@@ -201,8 +268,7 @@ const sendMessage = messageText => {
     }));
 }
 
-
-
+// Load friend chat links
 const loadFriends = async searchInput => {
     let url = '/friends/';
     url += searchInput ? `?search_input=${searchInput}` : '';
@@ -212,12 +278,14 @@ const loadFriends = async searchInput => {
     $('.friends-list').html(listFriends(friends));
 }
 
+// Adjust screen state
 const adjustMediaFormat = () => {
     if (isMedia() && !isMobileFormat) {
         $('.recipients').removeClass('is-one-quarter');
         $('.recipients').show();
         $('.messages').hide();
         $('#back-to-recipients').show();
+        $('#chat-message-form').addClass('is-mobile');
         isMobileFormat = true;
     }
     else if (isMobileFormat && !isMedia()) {
@@ -225,15 +293,15 @@ const adjustMediaFormat = () => {
         $('.recipients').show();
         $('.messages').show();
         $('#back-to-recipients').hide();
+        $('#chat-message-form').removeClass('is-mobile');
         isMobileFormat = false;
     }
 }
 
 
-
-
-
 $(document).ready(function() {
+
+    // Set initial screen state
     if (isMedia()) {
         adjustMediaFormat();
         isMobileFormat = true;
@@ -242,10 +310,12 @@ $(document).ready(function() {
         isMobileFormat = false;
     }
 
+    // Track resizing, adjusting screen state
     $(window).on('resize', function() {
         adjustMediaFormat();
     })
 
+    // Load chat when a friend is clicked
     $(document).on('click', '.friend-list-item', async function() {
         const friendUUID = $(this).data('friend_uuid');
         const friendName = $(this).find('.friend-name').text();
@@ -262,24 +332,34 @@ $(document).ready(function() {
     $('#back-to-recipients').on('click', function() {
         $('.recipients').show();
         $('.messages').hide();
+        loadFriends();
     })
 
+    // Search for friends on friend search input
     $('#friend-search-input').on('input', function() {
         const input = $(this).val();
         loadFriends(input);
     });
 
+    // Handle clicking of send button
     $('#chat-message-submit').on('click', function() {
         sendMessage($('#chat-message-input').val());
     })
 
+    // Handle submission of chat message
     $('#chat-message-form').on('submit', function(event) {
         event.preventDefault();
         sendMessage($('#chat-message-input').val());
     })
 
+    // Monitor typing and toggle as needed
     $('#chat-message-form').on('input', function(event) {
         const text = $('#chat-message-input').val();
         handleTyping(text);
+    })
+
+    // Focus on message input anytime message list is clicked
+    $('#message-list').on('click', function() {
+        $('#chat-message-input').focus();
     })
 })

@@ -4,6 +4,13 @@ import os
 import dj_database_url
 from pprint import pprint
 
+
+"""
+IGNORE THIS FILE
+This code involves environment establishment and server settings
+This code does not aid much in understanding the app's functionality apart from libraries used
+"""
+
 # Initialise environment variables
 env = environ.Env()
 env.read_env()
@@ -18,7 +25,7 @@ SECRET_KEY = env('SECRET_KEY')
 LOCAL = env('DJANGO_LOCAL', default='False').lower() == 'true'
 DEBUG = env('DJANGO_DEBUG', default='False').lower() == 'true'
 
-USE_POSTGRES_LOCAL = False
+USE_POSTGRES_LOCAL = True
 
 
 ALLOWED_HOSTS = ['ltb-memebook.herokuapp.com', 'localhost', '127.0.0.1']

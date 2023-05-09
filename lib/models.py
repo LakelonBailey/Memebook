@@ -11,6 +11,13 @@ import datetime
 import inspect, importlib
 
 
+"""
+IGNORE THIS FILE
+This code was copy/pasted to this repository from one of Lakelon Bailey's work applications.
+This code was NOT developed for this project. It is simply a library of highly-generalized helper functions
+"""
+
+
 class BaseClass(Model):
     uuid = UUIDField(default=uuid.uuid4, unique=True, primary_key=True, editable=False)
     created_at = DateTimeField(default=timezone.localtime)
@@ -18,6 +25,7 @@ class BaseClass(Model):
     class Meta:
         abstract = True
 
+    # Gather all fields of a model
     def get_fields(self, dict=False):
         if dict:
             return list(self.__dict__.keys())
@@ -29,6 +37,8 @@ class BaseClass(Model):
             fields.append(str(field).split('.')[2])
         return fields
 
+
+    # Custom model serializer
     def dict(self, *args, exclude=[], keep_related=False, model_types=[]):
 
         def handle_sub_fields(field_list, sub_dict):
@@ -137,25 +147,9 @@ class BaseClass(Model):
 
                         # Include sub exclusions
                         exclude=sub_exclude.get(field, [])
-                    ) if keep_related else value.pk
+                    ) if keep_related else str(value.pk)
 
                 model_dict[field] = value
             except AttributeError:
                 continue
         return model_dict
-
-
-def register_models(file_name, exclude=[]):
-    for name, model in inspect.getmembers(importlib.import_module(file_name), inspect.isclass):
-        if model.__module__ == file_name and issubclass(type(model), Model) and model not in exclude:
-            admin.site.register(model)
-
-
-def paginate_query(query, params):
-    num_results = query.count()
-    page_size = int(params['size'])
-    num_pages = num_results / page_size
-    num_pages += bool(num_results%page_size)
-    first_item = (int(params['page']) -1) * page_size
-    last_item = first_item + page_size
-    return (query[first_item:last_item], num_pages)

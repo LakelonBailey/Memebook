@@ -1,3 +1,11 @@
+/*
+IGNORE THIS FILE
+
+This code was copy/pasted to this repository from one of Lakelon Bailey's work applications.
+This code was NOT developed for this project. It is simply a library of highly-generalized helper functions
+
+*/
+
 function camelToUnderscore(str) {
     return str.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase();
 }

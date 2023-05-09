@@ -3,6 +3,7 @@ from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth.models import User
 from main.models import Message, Profile
+from django.db.models import Q
 from memebook.serializers import MessageSerializer
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -43,6 +44,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'type': 'stop_typing',
                 'typer_id': typer_id
             })
+        elif action == 'read_messages':
+            profile_id = data['profile_id']
+            recipient_id = data['recipient_id']
+
+            messages = await self.get_messages(profile_id, recipient_id)
+            message_data = []
+            for message in messages:
+                if not message.is_read:
+                    await self.read_message(message)
+
+                message_data.append(message.dict())
+
+            await self.channel_layer.group_send(self.room_name, {'type': 'read_messages', 'messages': message_data, 'profile_id': profile_id})
 
     async def chat_message(self, event):
         await self.send(text_data=json.dumps(event))
@@ -51,6 +65,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps(event))
 
     async def stop_typing(self, event):
+        await self.send(text_data=json.dumps(event))
+
+    async def read_messages(self, event):
         await self.send(text_data=json.dumps(event))
 
 
@@ -65,4 +82,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
             sender=Profile.objects.filter(uuid=sender_id).first(),
             recipient=Profile.objects.filter(uuid=recipient_id).first(),
             text=text
+        )
+
+    @database_sync_to_async
+    def read_message(self, message):
+        message.is_read = True
+        message.save()
+
+    @database_sync_to_async
+    def get_messages(self, profile_id, recipient_id):
+        return list(
+            Message.objects
+            .filter(
+                Q(recipient_id=recipient_id, sender_id=profile_id)
+                | Q(recipient_id=profile_id, sender_id=recipient_id)
+            )
+            .order_by('created_at')
+            .select_related('recipient', 'sender')
         )

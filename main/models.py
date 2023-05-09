@@ -48,6 +48,7 @@ class Profile(BaseClass):
             return f"{self.user.first_name} {self.user.last_name}"
         return f"{self.first_name} {self.last_name}"
 
+    # Get all memes user has liked
     def get_liked_memes(self):
         return Meme.objects.filter(
             uuid__in=Subquery(
@@ -59,6 +60,7 @@ class Profile(BaseClass):
             top_text__isnull=False,
         )
 
+    # Get only a list of concatenated text from liked memes
     def get_liked_memes_text(self):
         liked_memes = self.get_liked_memes()
         liked_memes = (
@@ -80,13 +82,6 @@ class Meme(BaseClass):
 
     def __str__(self):
         return f"{str(self.profile)} - {str(self.template)}"
-
-    def image_url(self):
-        if LOCAL:
-            root = '/mediafiles'
-        else:
-            root = MEDIA_URL + 'media'
-        return f"{root}/{self.uuid}.jpeg"
 
 
 class Comment(BaseClass):
@@ -123,6 +118,7 @@ class Message(BaseClass):
     def __str__(self):
         return f"{self.sender.full_name()} -> {self.recipient.full_name()}: {self.text}"
 
+    # Override save method to track read time
     def save(self, *args, **kwargs):
         if self.is_read and not self.read_time:
             self.read_time = timezone.localtime()

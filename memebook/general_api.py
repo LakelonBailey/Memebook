@@ -5,6 +5,12 @@ from django.db import models
 import json
 
 
+"""
+IGNORE THIS FILE
+This code was copy/pasted to this repository from one of Lakelon Bailey's work applications.
+This code was NOT developed for this project. It is simply a library of highly-generalized helper functions
+"""
+
 class GeneralAPI(View):
     def convert(self, val):
         conversions = {

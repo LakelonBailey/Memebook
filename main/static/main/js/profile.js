@@ -145,7 +145,7 @@ const loadProfileMemes = async (memes = null) => {
 
 const loadProfileFriends = async () => {
     const searchInput = $('#profile-friend-search-input').val();
-    const url = `/profile-friend-search/?search_input=${searchInput}`;
+    const url = `/profile-friends?search_input=${searchInput}`;
     const response = await sendGet(url);
     const friends = response.data.friends;
     const profileEls = await generateFriendList(friends);
