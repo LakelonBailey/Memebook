@@ -426,9 +426,7 @@ def get_messages(request, profile, friend_uuid):
             message.save()
 
         # Add serialized message
-        serialized_messages.append(
-            message.dict()
-        )
+        serialized_messages.append(message.dict())
 
     # Return data
     return JsonResponse({
