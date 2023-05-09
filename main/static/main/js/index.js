@@ -67,7 +67,33 @@ const memeListItem = meme => {
     `
 }
 
+const generateFriendList = async profiles => {
+    // Generate the HTML elements for each search result profile
+    let profileEls = [];
+    for (let profile of profiles) {
+        // Load the friendship status button for the profile
+        const friendStatusEl = await loadFriendshipStatusButton({
+            el: $('<div></div>'),
+            profile: profile,
+        });
 
+        // Construct the HTML element for the search result profile
+        profileEls.push(`
+             <div class="search-list-item">
+                 <div>
+                     <a class="section-load" data-section="profile" data-profileuuid="${profile.uuid}">${profile.first_name} ${profile.last_name}</a>
+                 </div>
+                 <div class="friendship-status-buttons">
+                     ${friendStatusEl.html()}
+                 </div>
+             </div>
+         `);
+    }
+
+    // Convert the HTML elements to strings and display them
+    profileEls = await Promise.all(profileEls);
+    return profileEls;
+}
 /***************************
 Friendship Status Functions
 ****************************/
@@ -96,7 +122,7 @@ const cancelFriendRequest = async friendData => {
 // Load a friendship status button in to the given container based
 // on the current friendship status between the authenticated user
 // and the provided profile
-const loadFriendshipStatusButton = async ({el, profile, profileUUID, reloadProfile} = {reloadProfile: true}) => {
+const loadFriendshipStatusButton = async ({ el, profile, profileUUID, reloadProfile } = { reloadProfile: true }) => {
 
     // Ignore if invalid el
     if (el == undefined) {
@@ -172,14 +198,14 @@ const loadFriendshipStatusButton = async ({el, profile, profileUUID, reloadProfi
     return el;
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
 
     // Set default pagination variables
     window.MEME_PAGINATION_SIZE = 9;
     window.MEME_PAGINATION_PAGE = 1;
 
     // Initialize global section loading function
-    window.LOAD_SECTION = async function(section, data={}) {
+    window.LOAD_SECTION = async function (section, data = {}) {
         if (section != window.CURRENT_SECTION || section == 'profile') {
 
             // Remove the active classes from the current section.
@@ -220,7 +246,7 @@ $(document).ready(function() {
         // Assign functions to each section
         const loaders = {
             'create-meme': loadCreateMeme,
-            'profile': async (data) => {await loadProfile(data.profileuuid)},
+            'profile': async (data) => { await loadProfile(data.profileuuid) },
             'view-meme': async (data) => {
                 if (data.meme_uuid == undefined) {
                     window.LOAD_SECTION('feed');
@@ -263,10 +289,10 @@ $(document).ready(function() {
      *           EVENTS           *
      ******************************/
 
-     // Handle section link click
-    $(document).on('click', '.section-load', function() {
+    // Handle section link click
+    $(document).on('click', '.section-load', function () {
         const el = $(this);
-        const {section, ...data} = el.data();
+        const { section, ...data } = el.data();
         if (el.hasClass('navbar-item')) {
             $('a.navbar-item').removeClass('is-active');
             $(`#navbar-main .navbar-item[data-section="${section}"]`).addClass('is-active');
@@ -275,14 +301,14 @@ $(document).ready(function() {
     });
 
     // Handle like meme icon click
-    $(document).on('click', '.like-meme', function() {
+    $(document).on('click', '.like-meme', function () {
         toggleLike($(this));
     })
 
     // Handle "View More" button click
     // NOTE: View more button is used to paginate
     //       meme lists in a simplistic manner
-    $('.view-more-button').on('click', async function() {
+    $('.view-more-button').on('click', async function () {
         const button = $(this);
         button.addClass('is-loading');
 
@@ -298,7 +324,7 @@ $(document).ready(function() {
     })
 
     // Switch between section tabs
-    $('.section-tab').on('click', async function() {
+    $('.section-tab').on('click', async function () {
 
         // Gather necessary variables
         const tabEl = $(this);
@@ -335,7 +361,7 @@ $(document).ready(function() {
     });
 
     // Handle frienship decision click
-    $(document).on('click','.friendship-decision-button', async function() {
+    $(document).on('click', '.friendship-decision-button', async function () {
 
         // Gather elements
         const button = $(this);
@@ -354,7 +380,7 @@ $(document).ready(function() {
     })
 
     // Handle cancel request and send request button clicks
-    $(document).on('click', '.friend-request-button', async function() {
+    $(document).on('click', '.friend-request-button', async function () {
         const button = $(this);
         const container = button.closest('.friendship-status-buttons');
         button.addClass('is-loading');
@@ -378,10 +404,10 @@ $(document).ready(function() {
     })
 
     // Handle remove friend button click
-    $(document).on('click', '.remove-friend-button', async function() {
+    $(document).on('click', '.remove-friend-button', async function () {
 
         // Gather confirmation on action
-        const {isConfirmed} = await swalConfirm.fire({
+        const { isConfirmed } = await swalConfirm.fire({
             title: 'Are you sure?',
             icon: 'warning',
             text: "Are you sure you want to remove this friend?",

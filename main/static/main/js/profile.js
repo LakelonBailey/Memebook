@@ -1,5 +1,5 @@
 // Load profile
-const loadProfile = async (profileUUID=null) => {
+const loadProfile = async (profileUUID = null) => {
 
     // Set pagination variables
     window.MEME_PAGINATION_PAGE = 1;
@@ -39,6 +39,7 @@ const loadProfile = async (profileUUID=null) => {
     }
     else {
         $('#settings-modal-trigger').hide();
+        $('#friends-modal-trigger').hide();
 
         // Load the friendship status button for the profile
         await loadFriendshipStatusButton({
@@ -114,7 +115,7 @@ const loadLikedMemes = async () => {
 }
 
 
-const loadProfileMemes = async (memes=null) => {
+const loadProfileMemes = async (memes = null) => {
     // If memes are not provided, construct URL for the memes request
     if (!memes) {
         let url = `/memes/?size=${window.MEME_PAGINATION_SIZE}&page=${window.MEME_PAGINATION_PAGE}&profile_uuid=${window.PROFILE_UUID}`;
@@ -142,14 +143,29 @@ const loadProfileMemes = async (memes=null) => {
     }
 }
 
+const loadProfileFriends = async () => {
+    const searchInput = $('#profile-friend-search-input').val();
+    const url = `/profile-friend-search/?search_input=${searchInput}`;
+    const response = await sendGet(url);
+    const friends = response.data.friends;
+    const profileEls = await generateFriendList(friends);
+    $('#profile-friend-list').html(profileEls);
+}
 
-
-$(document).ready(function() {
-    $('#profile-settings-form :input').on('change', async function() {
+$(document).ready(function () {
+    $('#profile-settings-form :input').on('change', async function () {
         const formData = getFormData('profile-settings-form');
         const response = await sendPost('/update-profile/', formData);
         if (response.ok) {
             savedToast();
         }
+    });
+
+    $('#friends-modal-trigger').on('click', async function () {
+        await loadProfileFriends();
+    });
+
+    $('#profile-friend-search-input').on('input', async function () {
+        await loadProfileFriends();
     });
 })

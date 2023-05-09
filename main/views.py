@@ -369,3 +369,43 @@ def get_messages(request, profile, friend_uuid):
     return JsonResponse({
         'messages': serialized_messages
     })
+
+@require_GET
+@attach_profile
+def profile_friend_search(request, profile):
+    query_dict = request.GET.dict()
+    search_input = query_dict.pop('search_input', None)
+    search_fields = ['first_name', 'last_name', 'user__username']
+    search_filters = []
+
+    if search_input:
+        terms = [term.strip() for term in search_input.split(' ') if term]
+        queries = [models.Q(**{f'{field}__icontains': t}) for t in terms for field in search_fields]
+        search_filters.append(reduce(or_, queries))
+
+    friends = (
+        profile.friends
+        .filter(
+            *search_filters
+        )
+        .order_by(
+            'first_name',
+            'last_name'
+        )
+        .annotate(
+            is_friend=Case(
+                When(
+                    friends__uuid=profile.uuid,
+                    then=Value(True)
+                ),
+                default=Value(False)
+            ),
+            user_requested_friendship=Case(When(received_requests__requester=profile, then=Value(True)), default=Value(False)),
+            requested_user_friendship=Case(When(sent_requests__requestee=profile, then=Value(True)), default=Value(False))
+        )
+        .order_by('first_name', 'last_name')
+    )
+
+    return JsonResponse({
+        'friends': [friend.dict() for friend in friends]
+    })
