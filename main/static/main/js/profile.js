@@ -35,6 +35,7 @@ const loadProfile = async (profileUUID=null) => {
     if (profile.is_current_user) {
         friendshipStatusEl.hide();
         $('#settings-modal-trigger').show();
+        $('#friends-modal-trigger').show();
     }
     else {
         $('#settings-modal-trigger').hide();
