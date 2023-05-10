@@ -14,10 +14,12 @@
 #include <cctype>
 using namespace std;
 
-// This code is designed to sort memes based on their relevance and recency.
-// It uses a custom scoring algorithm to determine the importance of each meme.
 // Compile with:
+// g++ -shared -o lib/sort_memes.so lib/sort_memes.cpp -fPIC -std=c++11
+
+// For Lake's Macbook:
 // g++ -shared -o lib/sort_memes.so lib/sort_memes.cpp -fPIC -std=c++11 -target x86_64-apple-macos11
+
 
 // RelevanceMeme is a structure that represents a meme with attributes such as:
 // - id: the meme's unique identifier

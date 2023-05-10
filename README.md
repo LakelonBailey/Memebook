@@ -23,6 +23,7 @@
         - SECRET_KEY={Any random string}
         - DJANGO_LOCAL='TRUE'
         - DJANGO_DEBUG='TRUE'
+    - HIGHLY IMPORTANT: The application will not run successfully unless the sort_memes.cpp file is compiled into a shared library (sort_memes.so). This can be done using the compile command found in sort_memes.cpp.
     - In memebook/settings.py, change "USE_POSTGRES_LOCAL" to False. Otherwise, you will face problems when it attempts to connect to a local postgres server.
     - OPTIONAL: To create seed data, run "python manage.py seeddata". If you want to delete previous data first, add the "--delete-old" option to that command
     - Once you successfully install those packages, run "python manage.py runserver" to run the local server.
